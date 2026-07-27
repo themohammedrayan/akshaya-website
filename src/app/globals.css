@@ -25,11 +25,14 @@
   --color-brand-900: #122c4d;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Every component in this app is built for a light/white background
+   (white cards, dark text, zinc borders) - none of it was adapted for
+   dark mode, so letting the OS/browser preference flip --background to
+   near-black made text unreadable against still-light-mode content.
+   Forcing light mode is the correct fix until a real dark theme is
+   built, not a workaround. */
+:root {
+  color-scheme: light;
 }
 
 body {
