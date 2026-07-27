@@ -49,7 +49,7 @@ export function IntakeContent({
         <h1 className="text-2xl font-bold text-zinc-900">{t("intake.successTitle")}</h1>
         <p className="mt-2 text-zinc-600">{t("intake.successMessage")}</p>
         <div className="mt-6 flex items-center justify-center gap-3">
-          <span className="rounded-lg bg-emerald-50 px-6 py-3 text-2xl font-bold tracking-wide text-emerald-800">
+          <span className="rounded-lg bg-brand-50 px-6 py-3 text-2xl font-bold tracking-wide text-brand-800">
             {state.trackingCode}
           </span>
           <button
@@ -82,7 +82,7 @@ export function IntakeContent({
           </div>
         )}
 
-        <Link href="/status" className="mt-8 inline-block font-medium text-emerald-700 hover:underline">
+        <Link href="/status" className="mt-8 inline-block font-medium text-brand-700 hover:underline">
           {t("intake.viewStatus")} →
         </Link>
       </div>
@@ -105,7 +105,7 @@ export function IntakeContent({
             required
             value={selectedServiceId}
             onChange={(e) => setSelectedServiceId(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 focus:border-emerald-600 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 focus:border-brand-600 focus:outline-none"
           >
             <option value="" disabled>
               {t("intake.servicePlaceholder")}
@@ -128,7 +128,7 @@ export function IntakeContent({
             type="text"
             required
             minLength={2}
-            className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 focus:border-emerald-600 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 focus:border-brand-600 focus:outline-none"
           />
         </div>
 
@@ -142,7 +142,7 @@ export function IntakeContent({
             type="tel"
             required
             placeholder="98765 43210"
-            className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 focus:border-emerald-600 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 focus:border-brand-600 focus:outline-none"
           />
         </div>
 

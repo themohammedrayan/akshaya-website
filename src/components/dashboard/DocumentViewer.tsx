@@ -21,7 +21,7 @@ export function DocumentViewer({ documents }: { documents: Document[] }) {
             href={doc.url ?? undefined}
             target="_blank"
             rel="noopener noreferrer"
-            className="block overflow-hidden rounded-lg border border-zinc-200 hover:border-emerald-400"
+            className="block overflow-hidden rounded-lg border border-zinc-200 hover:border-brand-400"
           >
             {doc.url && !isPdf ? (
               // eslint-disable-next-line @next/next/no-img-element

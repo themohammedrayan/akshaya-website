@@ -16,7 +16,7 @@ export function LanguageToggle() {
           aria-pressed={lang === option}
           className={clsx(
             "rounded-full px-3 py-1 font-medium transition-colors",
-            lang === option ? "bg-emerald-700 text-white" : "text-zinc-600 hover:bg-zinc-100",
+            lang === option ? "bg-brand-700 text-white" : "text-zinc-600 hover:bg-zinc-100",
           )}
         >
           {option === "en" ? t("language.english") : t("language.malayalam")}

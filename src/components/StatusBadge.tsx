@@ -8,8 +8,8 @@ const STATUS_COLORS: Record<string, string> = {
   docs_verified: "bg-blue-100 text-blue-700",
   in_progress: "bg-amber-100 text-amber-700",
   needs_customer_action: "bg-red-100 text-red-700",
-  completed: "bg-emerald-100 text-emerald-700",
-  delivered: "bg-emerald-200 text-emerald-800",
+  completed: "bg-green-100 text-green-700",
+  delivered: "bg-green-200 text-green-800",
   cancelled: "bg-zinc-200 text-zinc-500",
 };
 

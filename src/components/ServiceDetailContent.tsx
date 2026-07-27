@@ -17,7 +17,7 @@ export function ServiceDetailContent({ service }: { service: Service }) {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-      <Link href="/services" className="text-sm font-medium text-emerald-700 hover:underline">
+      <Link href="/services" className="text-sm font-medium text-brand-700 hover:underline">
         ← {t("serviceDetail.back")}
       </Link>
 

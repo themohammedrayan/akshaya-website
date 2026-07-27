@@ -78,7 +78,7 @@ export function DocumentUpload({
       <div className="flex items-center justify-between gap-3">
         <span className="text-sm text-zinc-700">{docLabelDisplay}</span>
         {status === "done" && (
-          <span className="text-sm font-medium text-emerald-700">{t("intake.uploaded")}</span>
+          <span className="text-sm font-medium text-brand-700">{t("intake.uploaded")}</span>
         )}
       </div>
 

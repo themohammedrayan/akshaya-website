@@ -7,7 +7,7 @@ export function Header() {
     <header className="border-b border-zinc-200 bg-white">
       <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6">
         <div className="flex items-center justify-between gap-4">
-          <Link href="/" className="text-lg font-bold text-emerald-800">
+          <Link href="/" className="text-lg font-bold text-brand-800">
             Akshaya e-Center
           </Link>
           <div className="sm:hidden">

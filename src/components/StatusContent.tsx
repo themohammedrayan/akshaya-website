@@ -29,7 +29,7 @@ export function StatusContent() {
             type="text"
             required
             placeholder="AKS-7F3K"
-            className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 uppercase focus:border-emerald-600 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 uppercase focus:border-brand-600 focus:outline-none"
           />
         </div>
 
@@ -43,7 +43,7 @@ export function StatusContent() {
             type="tel"
             required
             placeholder="98765 43210"
-            className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 focus:border-emerald-600 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 focus:border-brand-600 focus:outline-none"
           />
         </div>
 

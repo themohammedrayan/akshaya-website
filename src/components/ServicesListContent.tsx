@@ -35,7 +35,7 @@ export function ServicesListContent({ services }: { services: Service[] }) {
               <Link
                 key={service.id}
                 href={`/services/${service.slug}`}
-                className="rounded-xl border border-zinc-200 p-5 transition-colors hover:border-emerald-400 hover:bg-emerald-50"
+                className="rounded-xl border border-zinc-200 p-5 transition-colors hover:border-brand-400 hover:bg-brand-50"
               >
                 <h3 className="font-semibold text-zinc-900">
                   {pickLang(lang, service.name_en, service.name_ml)}
