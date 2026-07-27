@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { StatusBadge } from "@/components/StatusBadge";
+import { DocumentViewer } from "@/components/dashboard/DocumentViewer";
+import { WhatsAppMessageButton } from "@/components/dashboard/WhatsAppMessageButton";
 import { updateStatus, addNote, assignRequest } from "./actions";
 
 const NEXT_STATUSES: Record<string, string[]> = {
@@ -12,6 +14,8 @@ const NEXT_STATUSES: Record<string, string[]> = {
   delivered: ["delivered"],
   cancelled: ["cancelled"],
 };
+
+const SIGNED_URL_TTL_SECONDS = 10 * 60;
 
 export default async function RequestDetailPage({
   params,
@@ -31,14 +35,28 @@ export default async function RequestDetailPage({
 
   if (!request) notFound();
 
-  const [{ data: history }, { data: staff }] = await Promise.all([
+  const [{ data: history }, { data: staff }, { data: documents }] = await Promise.all([
     supabase
       .from("status_history")
       .select("id, status, note, is_internal, changed_at")
       .eq("request_id", id)
       .order("changed_at", { ascending: false }),
     supabase.from("profiles").select("id, name").order("name"),
+    supabase
+      .from("request_documents")
+      .select("id, doc_label, storage_path, uploaded_at")
+      .eq("request_id", id)
+      .order("uploaded_at", { ascending: false }),
   ]);
+
+  const documentsWithUrls = await Promise.all(
+    (documents ?? []).map(async (doc) => {
+      const { data: signed } = await supabase.storage
+        .from("request-docs")
+        .createSignedUrl(doc.storage_path, SIGNED_URL_TTL_SECONDS);
+      return { ...doc, url: signed?.signedUrl ?? null };
+    }),
+  );
 
   const options = NEXT_STATUSES[request.status] ?? [request.status];
 
@@ -72,6 +90,13 @@ export default async function RequestDetailPage({
               </dd>
             </div>
           </dl>
+        </div>
+
+        <div className="mt-6 rounded-lg border border-zinc-200 bg-white p-5">
+          <h2 className="font-semibold text-zinc-900">Documents</h2>
+          <div className="mt-3">
+            <DocumentViewer documents={documentsWithUrls} />
+          </div>
         </div>
 
         <div className="mt-6 rounded-lg border border-zinc-200 bg-white p-5">
@@ -146,6 +171,22 @@ export default async function RequestDetailPage({
 
       <div>
         <div className="rounded-lg border border-zinc-200 bg-white p-5">
+          <h2 className="font-semibold text-zinc-900">Message customer</h2>
+          <p className="mt-1 text-xs text-zinc-500">
+            Opens WhatsApp with the tracking code and current status pre-filled.
+          </p>
+          <div className="mt-3">
+            <WhatsAppMessageButton
+              customerName={request.customer_name}
+              customerPhone={request.customer_phone}
+              trackingCode={request.tracking_code ?? ""}
+              serviceName={request.service?.name_en ?? "your"}
+              status={request.status}
+            />
+          </div>
+        </div>
+
+        <div className="mt-6 rounded-lg border border-zinc-200 bg-white p-5">
           <h2 className="font-semibold text-zinc-900">Assignment</h2>
           <form action={assignRequest} className="mt-3 space-y-3">
             <input type="hidden" name="requestId" value={request.id} />

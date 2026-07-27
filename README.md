@@ -1,9 +1,11 @@
 # Akshaya e-Center Website
 
 A Next.js + Supabase app for an Akshaya e-Center in Kerala: a bilingual (English/Malayalam)
-public storefront and intake flow, a public tracking-code status page, and an authenticated
-staff dashboard for managing the request queue. This is the **Phase 0** build — see
-[Roadmap](#roadmap-phase-1--phase-2-not-built-yet) for what's intentionally deferred.
+public storefront and intake flow (with document uploads), a public tracking-code status page,
+and an authenticated staff dashboard for managing the request queue (with a document viewer and
+a WhatsApp message helper). **Phase 0 and Phase 1 (uploads + WhatsApp helper)** are built — see
+[Roadmap](#roadmap-phase-1--phase-2-not-built-yet) for what's still intentionally deferred (the
+Aadhaar form-filler module and Phase 2 items).
 
 ## Stack
 
@@ -18,18 +20,23 @@ staff dashboard for managing the request queue. This is the **Phase 0** build �
 
 ```
 supabase/
-  migrations/     18 SQL migrations, applied in filename order (see below)
+  migrations/     23 SQL migrations, applied in filename order (see below)
   seed.sql        Services catalog seed data (idempotent, safe to re-run)
 src/
   app/
     (public)/     Landing, /services, /services/[slug], /request, /status - share Header/Footer
     login/        Staff sign-in (standalone, no header/footer)
     dashboard/    Staff-only queue + request detail (protected by proxy.ts + layout check)
-  components/     Shared UI (Header, Footer, StatusBadge, WhatsAppButton, LanguageToggle, ...)
+  components/
+    dashboard/    DocumentViewer, WhatsAppMessageButton - dashboard-only, plain English
+    DocumentUpload.tsx  Per-document upload slot used in the intake success screen
+    ...           Header, Footer, StatusBadge, WhatsAppButton, LanguageToggle, ...
   lib/
     supabase/     Browser client, server client, and the proxy.ts session-refresh helper
     i18n/         en.json/ml.json dictionaries + LanguageProvider (cookie-persisted, no
                    locale-prefixed routes - see brief §6 for why)
+    whatsappTemplates.ts  buildStatusMessage() + phone formatting for the dashboard's
+                   "Message customer" button - deliberately minimal, not a templating system
     types/        Generated Supabase types (database.types.ts)
 ```
 
@@ -70,17 +77,32 @@ Five tables: `services`, `requests`, `request_documents` (unused until Phase 1 u
 - `requests` / `request_documents` / `status_history`: **no public read policy exists at
   all.** Staff (role `owner`/`staff` via a `profiles` row) get full read/write through RLS
   policies backed by `is_staff()` / `is_owner()` helper functions.
-- Public write access goes through two `security definer` RPCs only — never direct table
-  access:
+- Public write access goes through `security definer` RPCs only — never direct table access:
   - `submit_request(service_id, name, phone)` → inserts a `requests` row server-side and
-    returns just the tracking code. (Earlier iteration tried a direct anon `INSERT ...
+    returns `{request_id, tracking_code}`. (Earlier iteration tried a direct anon `INSERT ...
     RETURNING`-style insert; Postgres RLS requires a SELECT policy to satisfy `RETURNING`,
     and anon intentionally has none on `requests` - so that path always failed. The RPC avoids
-    needing a public SELECT policy entirely.)
+    needing a public SELECT policy entirely.) `request_id` exists so the browser can scope
+    document uploads to this specific request (see below).
   - `get_request_status(tracking_code, phone)` → the only way to read a request without
     signing in. Matches on tracking code + last-10-digits-of-phone, returns a generic
     "not found" on any mismatch (no enumeration), and only returns `status_history` rows where
     `is_internal = false`.
+  - `record_uploaded_document(request_id, doc_label, storage_path)` → records a document the
+    browser already uploaded directly to Storage. Re-validates the request is still `submitted`
+    and recent, and that `storage_path` actually belongs to `request_id`, before inserting into
+    `request_documents`.
+- **Document uploads** go straight from the browser to a private `request-docs` Storage bucket
+  (not proxied through a Server Action - Vercel's function payload limit is too small for
+  phone-camera photos of ID documents). A `storage.objects` RLS policy scopes anon inserts to a
+  path prefixed with a `requests.id` that is still `submitted` and recently created. That
+  policy needed its own helper: `exists (select ... from public.requests ...)` inside an RLS
+  predicate runs *as the calling role*, and since anon has zero SELECT visibility into
+  `requests` by design, a naive subquery there always evaluates false - the exact same class of
+  bug as the `submit_request`/`RETURNING` issue above. Fixed with a
+  `request_accepts_uploads(request_id)` security-definer helper, the same pattern as
+  `is_staff()`/`is_owner()`. Staff read documents via short-lived signed URLs generated
+  server-side in the dashboard (`createSignedUrl`), never a public bucket URL.
 - Every status transition on `requests` is auto-logged to `status_history` by a trigger
   (`is_internal = false`, i.e. customer-visible by default). Staff-written notes are separate
   inserts and default to `is_internal = true` (hidden from `/status`) unless a staff member
@@ -116,26 +138,42 @@ rely on.
 ## Testing
 
 - `npm run lint` / `npx tsc --noEmit` / `npm run build` all pass.
-- Full data-path (tracking code generation, status trigger, both RPCs, RLS enforcement for
-  `anon` including negative cases) was verified directly against the live Supabase project
-  via SQL, including a bug found and fixed mid-build (see `submit_request_rpc` migration
-  comment).
-- Browser QA of the public pages was limited by this build environment's network policy,
-  which blocks outbound HTTPS to `*.supabase.co` from the sandboxed dev server - so
-  data-dependent pages couldn't be exercised end-to-end in a real browser here. The static
-  parts (landing page, language toggle, mobile nav - which had a real "nav hidden entirely on
-  phones" bug that's now fixed) were verified in a headless browser. **Do a manual click-through
-  of the full intake → dashboard → status flow after deploying**, since that's the one thing
-  this build couldn't fully verify itself.
+- Full data-path (tracking code generation, status trigger, all RPCs, RLS enforcement for
+  `anon` including negative cases) was verified directly against the live Supabase project via
+  SQL. Two real bugs were found and fixed this way before they'd have hit production:
+  - Phase 0: `submit_request`'s original `insert().select()` pattern failed under RLS (see
+    `submit_request_rpc` migration).
+  - Phase 1: the Storage upload RLS policy's `exists (select ... from requests ...)` subquery
+    always evaluated false for `anon`, because that subquery is itself subject to `requests`'
+    RLS and anon has no SELECT policy there (see `fix_storage_rls_requests_check` migration).
+  - Lesson for future migrations: any RLS predicate that queries another RLS-protected table
+    needs a `security definer` helper (like `is_staff()`, `is_owner()`,
+    `request_accepts_uploads()`) - a raw subquery runs as the calling role and silently
+    self-defeats.
+- Browser QA of pages that need live Supabase data is limited by this build environment's
+  network policy, which blocks outbound HTTPS to `*.supabase.co` from the sandboxed dev server.
+  The static parts (landing page, language toggle, mobile nav) were verified in a headless
+  browser. **Do a manual click-through of the full intake (with an upload) → dashboard (viewing
+  the document, using the WhatsApp button) → status flow after deploying**, since that's the
+  one thing this build couldn't fully verify itself.
+- Two harmless orphaned `storage.objects` metadata rows may exist in the live project from SQL-level
+  RLS testing (direct-SQL inserts used to simulate uploads; direct-SQL deletes on storage tables
+  are blocked by Supabase, so cleanup needs the Storage API/dashboard, not SQL) - safe to ignore
+  or delete via Studio's Storage browser.
 
-## Roadmap (Phase 1 / Phase 2, not built yet)
+## Roadmap (not built yet)
 
-- Document uploads in intake (`request_documents` table already exists, unused) + inline
-  viewer in the dashboard.
-- Automated WhatsApp notifications via a template-based provider (manual "copy message"
-  helper is the Phase 0 stopgap).
-- Aadhaar form-filler staff module.
-- Services catalog admin UI in the dashboard (Phase 0 manages it via `seed.sql` + Studio).
-- Online fee payment, analytics/reporting.
+- **Aadhaar form-filler staff module** - explicitly out of scope so far; there's no template or
+  spec to build against yet (the brief references separate "layout work already started" that
+  isn't in this repo). Once a Form 1 template/reference exists, the likely shape is a staff-only
+  `/dashboard` route + `pdf-lib` to overlay text onto the existing PDF for printing.
+- **Re-upload after `needs_customer_action`** - uploads currently only work in the initial
+  post-submit window (`status = 'submitted'`, request created within the last hour). If staff
+  need a customer to send a document later, there's no flow for that yet - known gap, not
+  silently decided either way.
+- Automated WhatsApp notifications via a template-based provider (the dashboard's "Message
+  customer" button, which opens a pre-filled `wa.me` link for manual sending, is the stopgap).
+- Services catalog admin UI in the dashboard (currently managed via `seed.sql` + Studio).
+- Online fee payment, analytics/reporting (Phase 2).
 
-See the original build brief for full detail on all three phases.
+See the original build brief for full detail on all phases.

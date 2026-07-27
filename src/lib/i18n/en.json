@@ -47,7 +47,13 @@
     "copyCode": "Copy code",
     "copied": "Copied!",
     "viewStatus": "Check status anytime",
-    "errorGeneric": "Something went wrong. Please try again or WhatsApp us."
+    "errorGeneric": "Something went wrong. Please try again or WhatsApp us.",
+    "uploadTitle": "Upload your documents (optional)",
+    "uploadSubtitle": "You can also bring these in person - upload now if it's easier.",
+    "uploading": "Uploading…",
+    "uploaded": "Uploaded",
+    "invalidFileType": "Please upload a JPG, PNG, WEBP or PDF file.",
+    "fileTooLarge": "File is too large - please keep it under 10MB."
   },
   "status": {
     "title": "Check Request Status",
