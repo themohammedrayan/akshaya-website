@@ -79,11 +79,11 @@ export default async function DashboardPage({
 
         <input type="date" name="date" defaultValue={filters.date ?? ""} className="rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
 
-        <button type="submit" className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800">
+        <button type="submit" className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
           Filter
         </button>
         {(filters.status || filters.service || filters.assigned || filters.date) && (
-          <Link href="/dashboard" className="self-center text-sm text-zinc-500 hover:text-emerald-700">
+          <Link href="/dashboard" className="self-center text-sm text-zinc-500 hover:text-brand-700">
             Clear
           </Link>
         )}
@@ -99,7 +99,7 @@ export default async function DashboardPage({
           <Link
             key={req.id}
             href={`/dashboard/${req.id}`}
-            className="flex flex-col gap-2 rounded-lg border border-zinc-200 bg-white p-4 hover:border-emerald-400 hover:bg-emerald-50 sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-2 rounded-lg border border-zinc-200 bg-white p-4 hover:border-brand-400 hover:bg-brand-50 sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
               <p className="font-mono text-sm font-semibold text-zinc-900">{req.tracking_code}</p>

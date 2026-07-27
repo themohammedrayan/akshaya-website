@@ -28,7 +28,7 @@ export function Footer() {
                 {t("footer.phoneLabel")}
               </dt>
               <dd>
-                <a href={`tel:${phone}`} className="hover:text-emerald-700">
+                <a href={`tel:${phone}`} className="hover:text-brand-700">
                   {phone}
                 </a>
               </dd>

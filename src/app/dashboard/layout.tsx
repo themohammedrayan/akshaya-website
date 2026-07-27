@@ -28,7 +28,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           Supabase Studio.
         </p>
         <form action={signOut} className="mt-6">
-          <button type="submit" className="text-sm font-medium text-emerald-700 hover:underline">
+          <button type="submit" className="text-sm font-medium text-brand-700 hover:underline">
             Log out
           </button>
         </form>
@@ -40,7 +40,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="flex min-h-screen flex-col bg-zinc-50">
       <header className="border-b border-zinc-200 bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
-          <Link href="/dashboard" className="font-bold text-emerald-800">
+          <Link href="/dashboard" className="font-bold text-brand-800">
             Akshaya Dashboard
           </Link>
           <div className="flex items-center gap-4 text-sm">
@@ -48,7 +48,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               {profile.name} · <span className="capitalize">{profile.role}</span>
             </span>
             <form action={signOut}>
-              <button type="submit" className="font-medium text-zinc-600 hover:text-emerald-700">
+              <button type="submit" className="font-medium text-zinc-600 hover:text-brand-700">
                 Log out
               </button>
             </form>
