@@ -1,0 +1,27 @@
+"use client";
+
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import clsx from "clsx";
+
+export function LanguageToggle() {
+  const { lang, setLang, t } = useTranslation();
+
+  return (
+    <div className="inline-flex rounded-full border border-zinc-300 p-0.5 text-sm">
+      {(["en", "ml"] as const).map((option) => (
+        <button
+          key={option}
+          type="button"
+          onClick={() => setLang(option)}
+          aria-pressed={lang === option}
+          className={clsx(
+            "rounded-full px-3 py-1 font-medium transition-colors",
+            lang === option ? "bg-emerald-700 text-white" : "text-zinc-600 hover:bg-zinc-100",
+          )}
+        >
+          {option === "en" ? t("language.english") : t("language.malayalam")}
+        </button>
+      ))}
+    </div>
+  );
+}

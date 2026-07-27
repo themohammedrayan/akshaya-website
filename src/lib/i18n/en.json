@@ -1,0 +1,84 @@
+{
+  "nav": {
+    "services": "Services",
+    "startRequest": "Start a Request",
+    "checkStatus": "Check Status",
+    "login": "Staff Login",
+    "dashboard": "Dashboard",
+    "logout": "Log out"
+  },
+  "landing": {
+    "title": "Your one-stop center for government certificates & Aadhaar services",
+    "subtitle": "Income certificate, community certificate, Aadhaar enrolment and more — done right, without the runaround.",
+    "ctaStart": "Start a Request",
+    "ctaWhatsapp": "WhatsApp Us",
+    "trustTitle": "Visit us",
+    "servicesTitle": "Our Services",
+    "servicesSubtitle": "Fees, processing time and documents required — all upfront.",
+    "viewAllServices": "View all services"
+  },
+  "services": {
+    "pageTitle": "Services",
+    "pageSubtitle": "Choose a service to see the fee, processing time and documents you need to bring.",
+    "fee": "Fee",
+    "processingTime": "Processing time",
+    "requiredDocs": "Documents required",
+    "category": {
+      "e-district": "e-District Certificates",
+      "aadhaar": "Aadhaar Services",
+      "other": "Other Services"
+    },
+    "startRequestFor": "Start a request for this service"
+  },
+  "serviceDetail": {
+    "back": "Back to services"
+  },
+  "intake": {
+    "title": "Start a Request",
+    "subtitle": "Tell us what you need — we'll take it from there.",
+    "serviceLabel": "Service",
+    "servicePlaceholder": "Select a service",
+    "nameLabel": "Full name",
+    "phoneLabel": "Phone number",
+    "submit": "Submit request",
+    "submitting": "Submitting…",
+    "successTitle": "Request received!",
+    "successMessage": "We'll contact you on WhatsApp shortly. Save your tracking code:",
+    "copyCode": "Copy code",
+    "copied": "Copied!",
+    "viewStatus": "Check status anytime",
+    "errorGeneric": "Something went wrong. Please try again or WhatsApp us."
+  },
+  "status": {
+    "title": "Check Request Status",
+    "subtitle": "Enter your tracking code and phone number.",
+    "trackingCodeLabel": "Tracking code",
+    "phoneLabel": "Phone number",
+    "submit": "Check status",
+    "notFound": "We couldn't find a request with that tracking code and phone number.",
+    "errorGeneric": "Something went wrong. Please try again or WhatsApp us.",
+    "currentStatus": "Current status",
+    "historyTitle": "History",
+    "requestedOn": "Requested on"
+  },
+  "statusLabels": {
+    "submitted": "Submitted",
+    "docs_verified": "Documents Verified",
+    "in_progress": "In Progress",
+    "needs_customer_action": "Action Needed From You",
+    "completed": "Completed",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled"
+  },
+  "footer": {
+    "contactTitle": "Contact",
+    "hoursLabel": "Hours",
+    "addressLabel": "Address",
+    "phoneLabel": "Phone",
+    "rights": "All rights reserved."
+  },
+  "language": {
+    "english": "English",
+    "malayalam": "മലയാളം"
+  }
+}
