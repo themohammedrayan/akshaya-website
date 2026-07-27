@@ -7,9 +7,11 @@ import { pickLang } from "@/lib/i18n/pickLang";
 import { buttonClasses } from "@/components/ui/button-styles";
 import { trackIntakeSubmit } from "@/lib/analytics";
 import { submitRequest, type SubmitRequestState } from "@/app/(public)/request/actions";
+import { DocumentUpload } from "@/components/DocumentUpload";
 import type { Tables } from "@/lib/types/database.types";
 
-type Service = Pick<Tables<"services">, "id" | "slug" | "name_en" | "name_ml">;
+type Service = Pick<Tables<"services">, "id" | "slug" | "name_en" | "name_ml" | "required_docs">;
+type RequiredDoc = { en: string; ml: string };
 
 const initialState: SubmitRequestState = { status: "idle" };
 
@@ -25,6 +27,7 @@ export function IntakeContent({
   const [copied, setCopied] = useState(false);
 
   const preselected = services.find((s) => s.slug === preselectedSlug);
+  const [selectedServiceId, setSelectedServiceId] = useState(preselected?.id ?? "");
 
   useEffect(() => {
     if (state.status === "success" && preselectedSlug) {
@@ -36,6 +39,11 @@ export function IntakeContent({
   }, [state]);
 
   if (state.status === "success") {
+    const selectedService = services.find((s) => s.id === selectedServiceId);
+    const docs = Array.isArray(selectedService?.required_docs)
+      ? (selectedService.required_docs as unknown as RequiredDoc[])
+      : [];
+
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center sm:px-6">
         <h1 className="text-2xl font-bold text-zinc-900">{t("intake.successTitle")}</h1>
@@ -56,6 +64,24 @@ export function IntakeContent({
             {copied ? t("intake.copied") : t("intake.copyCode")}
           </button>
         </div>
+
+        {docs.length > 0 && (
+          <div className="mt-10 text-left">
+            <h2 className="text-sm font-semibold text-zinc-700">{t("intake.uploadTitle")}</h2>
+            <p className="mt-1 text-sm text-zinc-500">{t("intake.uploadSubtitle")}</p>
+            <div className="mt-4 space-y-3">
+              {docs.map((doc, i) => (
+                <DocumentUpload
+                  key={i}
+                  requestId={state.requestId}
+                  docLabel={doc.en}
+                  docLabelDisplay={pickLang(lang, doc.en, doc.ml)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
         <Link href="/status" className="mt-8 inline-block font-medium text-emerald-700 hover:underline">
           {t("intake.viewStatus")} →
         </Link>
@@ -77,7 +103,8 @@ export function IntakeContent({
             id="serviceId"
             name="serviceId"
             required
-            defaultValue={preselected?.id ?? ""}
+            value={selectedServiceId}
+            onChange={(e) => setSelectedServiceId(e.target.value)}
             className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 focus:border-emerald-600 focus:outline-none"
           >
             <option value="" disabled>

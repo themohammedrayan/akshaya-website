@@ -226,13 +226,21 @@ export type Database = {
       }
       is_owner: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
+      record_uploaded_document: {
+        Args: {
+          p_doc_label: string
+          p_request_id: string
+          p_storage_path: string
+        }
+        Returns: undefined
+      }
       submit_request: {
         Args: {
           p_customer_name: string
           p_customer_phone: string
           p_service_id: string
         }
-        Returns: string
+        Returns: Json
       }
     }
     Enums: {

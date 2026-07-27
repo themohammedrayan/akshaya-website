@@ -10,7 +10,7 @@ export default async function RequestPage({
   const supabase = await createClient();
   const { data: services } = await supabase
     .from("services")
-    .select("id, slug, name_en, name_ml")
+    .select("id, slug, name_en, name_ml, required_docs")
     .eq("active", true)
     .order("sort_order");
 

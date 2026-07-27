@@ -6,7 +6,7 @@ import { intakeSchema } from "@/lib/validation";
 export type SubmitRequestState =
   | { status: "idle" }
   | { status: "error"; message: string }
-  | { status: "success"; trackingCode: string };
+  | { status: "success"; trackingCode: string; requestId: string };
 
 export async function submitRequest(
   _prevState: SubmitRequestState,
@@ -29,9 +29,11 @@ export async function submitRequest(
     p_customer_phone: parsed.data.customerPhone,
   });
 
-  if (error || !data) {
+  const result = data as { tracking_code?: string; request_id?: string } | null;
+
+  if (error || !result?.tracking_code || !result?.request_id) {
     return { status: "error", message: "errorGeneric" };
   }
 
-  return { status: "success", trackingCode: data };
+  return { status: "success", trackingCode: result.tracking_code, requestId: result.request_id };
 }
