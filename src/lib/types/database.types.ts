@@ -214,6 +214,33 @@ export type Database = {
           },
         ]
       }
+      uidai_printed_forms: {
+        Row: {
+          aadhaar_number: string | null
+          applicant_name: string | null
+          form_type: string
+          id: string
+          printed_at: string
+          record: Json
+        }
+        Insert: {
+          aadhaar_number?: string | null
+          applicant_name?: string | null
+          form_type: string
+          id?: string
+          printed_at?: string
+          record: Json
+        }
+        Update: {
+          aadhaar_number?: string | null
+          applicant_name?: string | null
+          form_type?: string
+          id?: string
+          printed_at?: string
+          record?: Json
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -226,6 +253,10 @@ export type Database = {
       }
       is_owner: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
+      log_printed_form: {
+        Args: { p_form_type: string; p_record: Json }
+        Returns: string
+      }
       record_uploaded_document: {
         Args: {
           p_doc_label: string

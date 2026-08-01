@@ -44,6 +44,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
             Akshaya Dashboard
           </Link>
           <div className="flex items-center gap-4 text-sm">
+            <Link href="/dashboard/printed-forms" className="text-zinc-600 hover:text-brand-700">
+              Printed Forms
+            </Link>
             <span className="text-zinc-500">
               {profile.name} · <span className="capitalize">{profile.role}</span>
             </span>
