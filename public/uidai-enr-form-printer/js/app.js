@@ -3,6 +3,7 @@
 
   var Engine = window.FormEngine;
   var Runtime = window.SchemaRuntime;
+  var Persist = window.Persist;
 
   var REGISTRY = {
     "form1-en": { schema: window.SCHEMA_FORM1_EN, template: window.FORM1_EN_TEMPLATE, label: "Form 1" },
@@ -83,6 +84,7 @@
       var reg = REGISTRY[entry.formId];
       return { template: reg.template, fieldValues: Runtime.recordToFieldValues(reg.schema, entry.record) };
     });
+    queue.forEach(function (entry) { Persist.logPrintedForm(entry.formId, entry.record); });
     return Engine.generateQueuePdf(entries, getCurrentCalibration(), ctx.fontsMetrics);
   }
 
@@ -356,6 +358,7 @@
 
     document.querySelectorAll(".btn-print-one").forEach(function (btn) {
       btn.addEventListener("click", async function () {
+        Persist.logPrintedForm(ctx.activeFormId, ctx.record);
         showPdfPreview(await generateSingleRecordPdf(ctx.record));
       });
     });

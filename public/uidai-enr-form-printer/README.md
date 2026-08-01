@@ -17,27 +17,56 @@ one queue:
 Scope: **page 1 only** of each form (page 2 is instructions/declaration text,
 never filled, for all three).
 
-No backend, no framework, no build step, no npm at runtime. Vanilla
-HTML/CSS/JS, plus a vendored copy of [pdf-lib](https://pdf-lib.js.org/) for
-PDF output. Open `index.html` directly from a folder — no server required.
-(A small `package.json`/Playwright setup exists purely for the dev-only
-regression suite in `tests/` — see "Testing" below; it has no bearing on how
-the shipped app runs.)
+No framework, no build step, no npm at runtime. Vanilla HTML/CSS/JS, plus a
+vendored copy of [pdf-lib](https://pdf-lib.js.org/) for PDF output. Open
+`index.html` directly from a folder — no server required to *use* it,
+though see "Record-keeping" below for the one deliberate exception. (A small
+`package.json`/Playwright setup exists purely for the dev-only regression
+suite in `tests/` — see "Testing" below; it has no bearing on how the
+shipped app runs.)
 
 ## Hard rules this tool follows
 
 1. Never draws into the signature / thumb-impression / verifier blocks — no
    field definitions exist for them, in any of the three forms.
-2. No applicant data leaves the browser. No server, no runtime `fetch`, no
-   analytics. Only printer calibration is persisted (`localStorage`).
+2. Printer calibration is persisted locally (`localStorage`). Filled record
+   data is only ever sent off the browser for the audit-log write described
+   in "Record-keeping" below — no analytics, nothing else.
 3. The queue is in-memory only: manual wipe button, plus a 15-minute idle
    auto-wipe (of both the queue and the current form, across all three
    forms) with a visible countdown in the final minute.
 4. No biometric data anywhere in the model, UI, or any template.
 5. Aadhaar numbers are Verhoeff-checked before printing (warns, does not
    block).
-6. Works fully offline; `pdf-lib` is vendored into `vendor/`, not loaded
-   from a CDN.
+6. Printing itself works fully offline; `pdf-lib` is vendored into
+   `vendor/`, not loaded from a CDN. The record-keeping write to Supabase
+   (see below) needs a connection, but is best-effort and never blocks
+   printing if it fails.
+
+## Record-keeping
+
+Every time an operator prints a record (single print or a queue print),
+the filled data — including the Aadhaar number, as entered — is logged to
+the same Supabase project the main site uses, via `js/persist.js`
+(`window.Persist.logPrintedForm`). This is a deliberate, explicit exception
+to "no applicant data leaves the browser": staff wanted a durable audit
+trail of what was printed, viewable at `/dashboard/printed-forms` (staff
+login required).
+
+- The write is a single `fetch()` POST to the `log_printed_form` RPC
+  (`supabase/migrations/20260801000024_uidai_printed_forms.sql`), the same
+  security-definer-RPC pattern the main app uses for public writes — no
+  supabase-js SDK is vendored, just a raw REST call with the project's
+  public anon key (same key already shipped in the main site's browser
+  bundle).
+- It's wrapped in try/catch and never awaited before printing — a slow or
+  failed network call only logs a console warning, it does not delay or
+  block the print itself.
+- Only staff (`is_staff()`) can read the logged rows back; the anon key
+  used here can insert but not select.
+- Storing Aadhaar numbers server-side has real weight under India's
+  Aadhaar Act — that's an accepted, explicit choice made when this feature
+  was added, not an oversight.
 
 ## Running it
 
@@ -322,9 +351,11 @@ Per the build spec: PIN-code autofill, document-type pickers, and a fully
 schema-generated (rather than hand-authored) entry-form UI are Phase 2/3
 work. Malayalam forms would need an embedded Unicode font (the PDF standard
 fonts can't draw it) and haven't been started. Forms 2/4/6/7/8 aren't built.
-There is no server, database, account system, or biometric capture, and
-there never will be — this tool prints paper; a human operator does the
-rest through the official client.
+There is no account system or biometric capture, and there never will be —
+this tool prints paper; a human operator does the rest through the official
+client. It does now write a record-keeping audit log to Supabase on print
+(see "Record-keeping" above) — that's the one deliberate exception to this
+tool's original "nothing but printing" scope.
 
 ## Open questions (unresolved here)
 
