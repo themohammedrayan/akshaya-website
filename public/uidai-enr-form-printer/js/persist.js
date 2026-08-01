@@ -7,8 +7,9 @@
   // here by value because this folder is a static, no-build-step app with
   // no access to env vars at request time. Not a new secret exposure: the
   // anon key is designed to be public and already ships to every browser.
-  var SUPABASE_URL = "https://YOUR-PROJECT.supabase.co";
-  var SUPABASE_ANON_KEY = "YOUR-ANON-KEY";
+  var SUPABASE_URL = "https://ishxtpxlpqcuemlrnesp.supabase.co";
+  var SUPABASE_ANON_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzaHh0cHhscHFjdWVtbHJuZXNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxMzEwMjAsImV4cCI6MjEwMDcwNzAyMH0.GQkxLhmrO5KIQCcdb7dzK7_yrEYXpstLv6tLdeRKqfw";
 
   // Logs a printed record to Supabase for staff record-keeping
   // (uidai_printed_forms table, via the log_printed_form RPC). Best-effort:
