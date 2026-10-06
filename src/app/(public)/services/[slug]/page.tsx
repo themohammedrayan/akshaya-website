@@ -14,6 +14,7 @@ export default async function ServiceDetailPage({
     .select("*")
     .eq("slug", slug)
     .eq("active", true)
+    .eq("show_on_website", true)
     .single();
 
   if (!service) notFound();

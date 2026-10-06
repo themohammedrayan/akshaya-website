@@ -13,6 +13,7 @@ export default async function ServicesPage() {
     .from("services")
     .select("id, slug, name_en, name_ml, category, fee, processing_time")
     .eq("active", true)
+    .eq("show_on_website", true)
     .order("sort_order");
 
   return <ServicesListContent services={services ?? []} />;
