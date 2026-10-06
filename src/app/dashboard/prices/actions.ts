@@ -59,7 +59,7 @@ export async function updateServicePricing(formData: FormData) {
 
 const itemSchema = z.object({
   name: z.string().trim().min(2, "Enter a name").max(100),
-  category: z.enum(["bill-payment", "other", "e-district", "aadhaar"]),
+  category: z.enum(["other", "e-district", "aadhaar"]),
   variableGovtFee: z.boolean(),
   defaultGovtFee: money,
   defaultServiceCharge: money,

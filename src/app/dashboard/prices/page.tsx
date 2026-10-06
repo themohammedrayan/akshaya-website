@@ -6,7 +6,6 @@ import { addBillingItem, updateServicePricing, revertToDefaultSlabs } from "./ac
 const CATEGORY_LABELS: Record<string, string> = {
   "e-district": "e-District",
   aadhaar: "Aadhaar",
-  "bill-payment": "Bill / tax payment",
   other: "Other",
 };
 
@@ -63,7 +62,9 @@ export default async function PricesPage({
                 <input type="hidden" name="serviceId" value={s.id} />
                 <div className="min-w-48 flex-1">
                   <p className="font-medium text-zinc-900">{s.name_en}</p>
-                  <p className="text-xs text-zinc-400">{CATEGORY_LABELS[s.category] ?? s.category}</p>
+                  <p className="text-xs text-zinc-400">
+                    {s.variable_govt_fee ? "Bill / tax payment" : (CATEGORY_LABELS[s.category] ?? s.category)}
+                  </p>
                 </div>
                 <label className="flex items-center gap-1.5 text-xs text-zinc-600">
                   <input type="checkbox" name="variableGovtFee" defaultChecked={s.variable_govt_fee} />
@@ -141,8 +142,7 @@ export default async function PricesPage({
           <label className="text-xs text-zinc-500">
             Type
             <select name="category" className="mt-1 block rounded-lg border border-zinc-300 px-3 py-1.5 text-sm">
-              <option value="bill-payment">Bill / tax payment</option>
-              <option value="other">Other</option>
+              <option value="other">Other / bill payment</option>
               <option value="e-district">e-District</option>
               <option value="aadhaar">Aadhaar</option>
             </select>

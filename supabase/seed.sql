@@ -188,9 +188,9 @@ insert into public.services
   (slug, name_en, name_ml, category, fee, processing_time, description_en, description_ml,
    sort_order, show_on_website, variable_govt_fee, default_govt_fee, default_service_charge)
 values
-  ('property-tax-payment', 'Property Tax Payment', 'വസ്തു നികുതി അടയ്ക്കൽ', 'bill-payment', 0, 'Instant', '', '', 101, false, true, 0, 0),
-  ('kseb-bill-payment', 'KSEB Electricity Bill', 'കെ.എസ്.ഇ.ബി വൈദ്യുതി ബിൽ', 'bill-payment', 0, 'Instant', '', '', 102, false, true, 0, 0),
-  ('kwa-water-bill-payment', 'KWA Water Bill', 'കെ.ഡബ്ല്യു.എ വാട്ടർ ബിൽ', 'bill-payment', 0, 'Instant', '', '', 103, false, true, 0, 0),
+  ('property-tax-payment', 'Property Tax Payment', 'വസ്തു നികുതി അടയ്ക്കൽ', 'other', 0, 'Instant', '', '', 101, false, true, 0, 0),
+  ('kseb-bill-payment', 'KSEB Electricity Bill', 'കെ.എസ്.ഇ.ബി വൈദ്യുതി ബിൽ', 'other', 0, 'Instant', '', '', 102, false, true, 0, 0),
+  ('kwa-water-bill-payment', 'KWA Water Bill', 'കെ.ഡബ്ല്യു.എ വാട്ടർ ബിൽ', 'other', 0, 'Instant', '', '', 103, false, true, 0, 0),
   ('photocopy', 'Photocopy (per page)', 'ഫോട്ടോകോപ്പി (പേജ്)', 'other', 2, 'Instant', '', '', 110, false, false, 0, 2),
   ('printout', 'Print-out (per page)', 'പ്രിന്റ് ഔട്ട് (പേജ്)', 'other', 5, 'Instant', '', '', 111, false, false, 0, 5)
 on conflict (slug) do nothing;

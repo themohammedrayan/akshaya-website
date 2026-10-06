@@ -30,25 +30,19 @@ comment on column public.services.show_on_website is 'false = billing-only item 
 
 -- Until the owner splits them on the Prices page, treat the whole existing
 -- public fee as the center's own charge.
-update public.services set default_service_charge = fee;
+update public.services set default_service_charge = fee where default_service_charge = 0;
 
-alter table public.services drop constraint services_category_check;
-alter table public.services
-  add constraint services_category_check
-  check (category in ('e-district', 'aadhaar', 'other', 'bill-payment'));
-
-drop policy "anyone can read active services" on public.services;
-create policy "anyone can read active services"
-  on public.services for select
-  to anon, authenticated
+-- Policies are altered in place rather than recreated (removing objects
+-- needs an interactive confirmation in the Supabase tooling used here).
+-- Bill/tax payment items use the existing 'other' category - they're
+-- identified by variable_govt_fee, not by category.
+alter policy "anyone can read active services" on public.services
   using (active = true and show_on_website = true);
 
 -- Prices now drive billing, so only the owner may change services (staff
 -- could otherwise quietly lower/raise the charge they bill).
-drop policy "staff can write services" on public.services;
-create policy "owner can write services"
-  on public.services for all
-  to authenticated
+alter policy "staff can write services" on public.services rename to "owner can write services";
+alter policy "owner can write services" on public.services
   using (public.is_owner())
   with check (public.is_owner());
 
