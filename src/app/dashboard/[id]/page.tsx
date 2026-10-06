@@ -1,8 +1,11 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { StatusBadge } from "@/components/StatusBadge";
 import { DocumentViewer } from "@/components/dashboard/DocumentViewer";
 import { WhatsAppMessageButton } from "@/components/dashboard/WhatsAppMessageButton";
+import { InvoiceBadge } from "@/components/dashboard/InvoiceBadge";
+import { formatINR } from "@/lib/billing";
 import { updateStatus, addNote, assignRequest } from "./actions";
 
 const NEXT_STATUSES: Record<string, string[]> = {
@@ -35,7 +38,7 @@ export default async function RequestDetailPage({
 
   if (!request) notFound();
 
-  const [{ data: history }, { data: staff }, { data: documents }] = await Promise.all([
+  const [{ data: history }, { data: staff }, { data: documents }, { data: invoices }] = await Promise.all([
     supabase
       .from("status_history")
       .select("id, status, note, is_internal, changed_at")
@@ -47,6 +50,11 @@ export default async function RequestDetailPage({
       .select("id, doc_label, storage_path, uploaded_at")
       .eq("request_id", id)
       .order("uploaded_at", { ascending: false }),
+    supabase
+      .from("invoices")
+      .select("id, invoice_no, status, grand_total, paid_total")
+      .eq("request_id", id)
+      .order("created_at", { ascending: false }),
   ]);
 
   const documentsWithUrls = await Promise.all(
@@ -184,6 +192,37 @@ export default async function RequestDetailPage({
               status={request.status}
             />
           </div>
+        </div>
+
+        <div className="mt-6 rounded-lg border border-zinc-200 bg-white p-5">
+          <h2 className="font-semibold text-zinc-900">Billing</h2>
+          {(invoices ?? []).length > 0 && (
+            <ul className="mt-3 space-y-2 text-sm">
+              {(invoices ?? []).map((inv) => (
+                <li key={inv.id}>
+                  <Link
+                    href={`/dashboard/invoices/${inv.id}`}
+                    className="flex items-center justify-between gap-2 hover:text-brand-700"
+                  >
+                    <span className="font-mono">{inv.invoice_no}</span>
+                    <span className="flex items-center gap-2">
+                      {formatINR(inv.grand_total)}
+                      <InvoiceBadge
+                        cancelled={inv.status === "cancelled"}
+                        due={Number(inv.grand_total) - Number(inv.paid_total)}
+                      />
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+          <Link
+            href={`/dashboard/invoices/new?request=${request.id}`}
+            className="mt-3 block w-full rounded-lg border border-zinc-300 px-4 py-2 text-center text-sm font-medium text-zinc-800 hover:bg-zinc-50"
+          >
+            Create invoice
+          </Link>
         </div>
 
         <div className="mt-6 rounded-lg border border-zinc-200 bg-white p-5">

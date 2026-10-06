@@ -12,6 +12,7 @@ export default async function RequestPage({
     .from("services")
     .select("id, slug, name_en, name_ml, required_docs")
     .eq("active", true)
+    .eq("show_on_website", true)
     .order("sort_order");
 
   return <IntakeContent services={services ?? []} preselectedSlug={service} />;

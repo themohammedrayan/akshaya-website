@@ -115,6 +115,33 @@ are the three security-definer functions being callable by `anon`/`authenticated
 intentional (that's the whole point of `submit_request` and `get_request_status`, and
 `is_staff()`/`is_owner()` must be callable by `authenticated` for RLS policies to evaluate).
 
+## Invoicing (staff dashboard)
+
+`/dashboard/invoices` - billing for walk-ins and website requests, printed on half an A4 sheet.
+
+- **Income vs pass-through.** Every invoice line stores `govt_fee` (collected on the customer's
+  behalf and paid on to the department/utility - *not* income) and `service_charge` (the
+  center's own fee - *the* income) separately. Reports sum them separately, so
+  `total collected - govt pass-through = our income`.
+- **Service charge bands.** Bill/tax items (`services.variable_govt_fee`) have staff type only the
+  bill amount; the charge comes from `service_charge_slabs` ("up to ₹X -> ₹Y", plus one "above"
+  band; a service's own bands override the default set). Fixed items use
+  `services.default_govt_fee` / `default_service_charge`. `public.service_charge_for()` is the
+  single source of truth and `create_invoice()` rejects any line that doesn't match it, unless
+  the owner overrides it with a reason (flagged in reports). `src/lib/billing.ts` mirrors it for
+  the live preview - keep the two in sync.
+- **Payments.** Cash / UPI / Card, or Credit (no payment yet; balance tracked, part-payments
+  recorded later). Invoice numbers are `AKS/<FY>/<n>`, sequential per April-March year.
+- **No edits or deletes.** Invoices are only cancelled (owner-only, reason required); the number
+  is never reused and cancelled bills drop out of all totals.
+- **Owner-only:** `/dashboard/reports` (billed income split, money received by mode for drawer
+  reconciliation, credit dues, per-service table, CSV export) and `/dashboard/prices` (prices,
+  bands, billing-only items). Services are now owner-write only.
+- Center name/CSC ID/address/phone on the printed bill live in `src/lib/center.ts`; logo is
+  `public/akshaya-logo.png`.
+- Migration: `20261006000025_invoicing.sql`. Billing-only items and **placeholder** default
+  bands are in `seed.sql` - set the real bands on the Prices page before use.
+
 ## i18n
 
 Simple dictionary approach (`src/lib/i18n/en.json` / `ml.json`) + a cookie-persisted React
@@ -174,6 +201,6 @@ rely on.
 - Automated WhatsApp notifications via a template-based provider (the dashboard's "Message
   customer" button, which opens a pre-filled `wa.me` link for manual sending, is the stopgap).
 - Services catalog admin UI in the dashboard (currently managed via `seed.sql` + Studio).
-- Online fee payment, analytics/reporting (Phase 2).
+- Online fee payment (Phase 2).
 
 See the original build brief for full detail on all phases.

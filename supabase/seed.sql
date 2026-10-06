@@ -171,10 +171,33 @@ on conflict (slug) do update set
   name_en = excluded.name_en,
   name_ml = excluded.name_ml,
   category = excluded.category,
-  fee = excluded.fee,
   processing_time = excluded.processing_time,
   required_docs = excluded.required_docs,
   description_en = excluded.description_en,
   description_ml = excluded.description_ml,
   sort_order = excluded.sort_order,
   updated_at = now();
+-- fee is deliberately not overwritten on re-run: prices are owned by the
+-- dashboard's Prices page (owner-only) once invoicing is in use.
+
+-- Billing-only items (show_on_website = false): counter work and bill/tax
+-- payments made on the customer's behalf. For variable_govt_fee items staff
+-- type the bill amount and the service charge comes from the slabs below.
+-- Inserted once, never overwritten - the owner manages them on Prices.
+insert into public.services
+  (slug, name_en, name_ml, category, fee, processing_time, description_en, description_ml,
+   sort_order, show_on_website, variable_govt_fee, default_govt_fee, default_service_charge)
+values
+  ('property-tax-payment', 'Property Tax Payment', 'വസ്തു നികുതി അടയ്ക്കൽ', 'other', 0, 'Instant', '', '', 101, false, true, 0, 0),
+  ('kseb-bill-payment', 'KSEB Electricity Bill', 'കെ.എസ്.ഇ.ബി വൈദ്യുതി ബിൽ', 'other', 0, 'Instant', '', '', 102, false, true, 0, 0),
+  ('kwa-water-bill-payment', 'KWA Water Bill', 'കെ.ഡബ്ല്യു.എ വാട്ടർ ബിൽ', 'other', 0, 'Instant', '', '', 103, false, true, 0, 0),
+  ('photocopy', 'Photocopy (per page)', 'ഫോട്ടോകോപ്പി (പേജ്)', 'other', 2, 'Instant', '', '', 110, false, false, 0, 2),
+  ('printout', 'Print-out (per page)', 'പ്രിന്റ് ഔട്ട് (പേജ്)', 'other', 5, 'Instant', '', '', 111, false, false, 0, 5)
+on conflict (slug) do nothing;
+
+-- Default service charge slabs for bill/tax payments. PLACEHOLDER bands -
+-- the owner must set the real ones on the dashboard's Prices page.
+insert into public.service_charge_slabs (service_id, up_to, charge)
+select null, v.up_to, v.charge
+from (values (1000.00, 20.00), (5000.00, 30.00), (null::numeric, 50.00)) as v(up_to, charge)
+where not exists (select 1 from public.service_charge_slabs where service_id is null);

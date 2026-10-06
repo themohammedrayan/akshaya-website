@@ -14,6 +14,202 @@ export type Database = {
   }
   public: {
     Tables: {
+      invoice_counters: {
+        Row: {
+          fy: string
+          last_no: number
+        }
+        Insert: {
+          fy: string
+          last_no?: number
+        }
+        Update: {
+          fy?: string
+          last_no?: number
+        }
+        Relationships: []
+      }
+      invoice_items: {
+        Row: {
+          charge_overridden: boolean
+          description: string
+          govt_fee: number
+          id: string
+          invoice_id: string
+          line_total: number | null
+          override_reason: string | null
+          qty: number
+          service_charge: number
+          service_id: string | null
+          sort_order: number
+        }
+        Insert: {
+          charge_overridden?: boolean
+          description: string
+          govt_fee?: number
+          id?: string
+          invoice_id: string
+          line_total?: number | null
+          override_reason?: string | null
+          qty?: number
+          service_charge?: number
+          service_id?: string | null
+          sort_order?: number
+        }
+        Update: {
+          charge_overridden?: boolean
+          description?: string
+          govt_fee?: number
+          id?: string
+          invoice_id?: string
+          line_total?: number | null
+          override_reason?: string | null
+          qty?: number
+          service_charge?: number
+          service_id?: string | null
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_items_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoice_payments: {
+        Row: {
+          amount: number
+          id: string
+          invoice_id: string
+          mode: string
+          received_at: string
+          received_by: string | null
+          reference: string | null
+        }
+        Insert: {
+          amount: number
+          id?: string
+          invoice_id: string
+          mode: string
+          received_at?: string
+          received_by?: string | null
+          reference?: string | null
+        }
+        Update: {
+          amount?: number
+          id?: string
+          invoice_id?: string
+          mode?: string
+          received_at?: string
+          received_by?: string | null
+          reference?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_payments_received_by_fkey"
+            columns: ["received_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          cancel_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
+          created_at: string
+          created_by: string | null
+          customer_name: string
+          customer_phone: string | null
+          govt_total: number
+          grand_total: number | null
+          id: string
+          invoice_no: string
+          notes: string | null
+          paid_total: number
+          request_id: string | null
+          service_total: number
+          status: string
+        }
+        Insert: {
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_name: string
+          customer_phone?: string | null
+          govt_total?: number
+          grand_total?: number | null
+          id?: string
+          invoice_no: string
+          notes?: string | null
+          paid_total?: number
+          request_id?: string | null
+          service_total?: number
+          status?: string
+        }
+        Update: {
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          govt_total?: number
+          grand_total?: number | null
+          id?: string
+          invoice_no?: string
+          notes?: string | null
+          paid_total?: number
+          request_id?: string | null
+          service_total?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_cancelled_by_fkey"
+            columns: ["cancelled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -118,11 +314,45 @@ export type Database = {
           },
         ]
       }
+      service_charge_slabs: {
+        Row: {
+          charge: number
+          created_at: string
+          id: string
+          service_id: string | null
+          up_to: number | null
+        }
+        Insert: {
+          charge: number
+          created_at?: string
+          id?: string
+          service_id?: string | null
+          up_to?: number | null
+        }
+        Update: {
+          charge?: number
+          created_at?: string
+          id?: string
+          service_id?: string | null
+          up_to?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_charge_slabs_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           active: boolean
           category: string
           created_at: string
+          default_govt_fee: number
+          default_service_charge: number
           description_en: string
           description_ml: string
           fee: number
@@ -131,14 +361,18 @@ export type Database = {
           name_ml: string
           processing_time: string
           required_docs: Json
+          show_on_website: boolean
           slug: string
           sort_order: number
           updated_at: string
+          variable_govt_fee: boolean
         }
         Insert: {
           active?: boolean
           category: string
           created_at?: string
+          default_govt_fee?: number
+          default_service_charge?: number
           description_en?: string
           description_ml?: string
           fee?: number
@@ -147,14 +381,18 @@ export type Database = {
           name_ml: string
           processing_time: string
           required_docs?: Json
+          show_on_website?: boolean
           slug: string
           sort_order?: number
           updated_at?: string
+          variable_govt_fee?: boolean
         }
         Update: {
           active?: boolean
           category?: string
           created_at?: string
+          default_govt_fee?: number
+          default_service_charge?: number
           description_en?: string
           description_ml?: string
           fee?: number
@@ -163,9 +401,11 @@ export type Database = {
           name_ml?: string
           processing_time?: string
           required_docs?: Json
+          show_on_website?: boolean
           slug?: string
           sort_order?: number
           updated_at?: string
+          variable_govt_fee?: boolean
         }
         Relationships: []
       }
@@ -246,6 +486,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_invoice_payment: {
+        Args: {
+          p_amount: number
+          p_invoice_id: string
+          p_mode: string
+          p_reference: string
+        }
+        Returns: undefined
+      }
+      cancel_invoice: {
+        Args: { p_invoice_id: string; p_reason: string }
+        Returns: undefined
+      }
+      create_invoice: { Args: { p_invoice: Json }; Returns: string }
+      financial_summary: {
+        Args: { p_from: string; p_to: string }
+        Returns: Json
+      }
       generate_tracking_code: { Args: never; Returns: string }
       get_request_status: {
         Args: { p_phone: string; p_tracking_code: string }
@@ -257,6 +515,7 @@ export type Database = {
         Args: { p_form_type: string; p_record: Json }
         Returns: string
       }
+      next_invoice_no: { Args: never; Returns: string }
       record_uploaded_document: {
         Args: {
           p_doc_label: string
@@ -264,6 +523,14 @@ export type Database = {
           p_storage_path: string
         }
         Returns: undefined
+      }
+      save_charge_slabs: {
+        Args: { p_service_id: string | null; p_slabs: Json }
+        Returns: undefined
+      }
+      service_charge_for: {
+        Args: { p_govt_amount: number; p_service_id: string }
+        Returns: number
       }
       submit_request: {
         Args: {

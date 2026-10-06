@@ -37,13 +37,26 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-50">
-      <header className="border-b border-zinc-200 bg-white">
+    <div className="flex min-h-screen flex-col bg-zinc-50 print:bg-white">
+      <header className="border-b border-zinc-200 bg-white print:hidden">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
           <Link href="/dashboard" className="font-bold text-brand-800">
             Akshaya Dashboard
           </Link>
-          <div className="flex items-center gap-4 text-sm">
+          <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-1 text-sm">
+            <Link href="/dashboard/invoices" className="text-zinc-600 hover:text-brand-700">
+              Invoices
+            </Link>
+            {profile.role === "owner" && (
+              <>
+                <Link href="/dashboard/reports" className="text-zinc-600 hover:text-brand-700">
+                  Reports
+                </Link>
+                <Link href="/dashboard/prices" className="text-zinc-600 hover:text-brand-700">
+                  Prices
+                </Link>
+              </>
+            )}
             <Link href="/dashboard/printed-forms" className="text-zinc-600 hover:text-brand-700">
               Printed Forms
             </Link>
@@ -58,7 +71,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6">{children}</main>
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 print:max-w-none print:p-0">{children}</main>
     </div>
   );
 }
