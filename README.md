@@ -135,6 +135,13 @@ in English.
   single source of truth and `create_invoice()` rejects any line that doesn't match it, unless
   the owner overrides it with a reason (flagged in reports). `src/lib/billing.ts` mirrors it for
   the live preview - keep the two in sync.
+- **Extra & discounts.** Any staff member can change a line's service charge ("Change" on the
+  line) or type what the customer actually pays ("Customer pays a different amount?" / "No change?
+  Keep ₹X as extra"). Lines store the usual charge in `invoice_items.standard_charge`; bill-level
+  adjustments are `invoices.extra_amount` / `discount_amount` and are folded into `service_total`
+  by the totals trigger. Discounts need a reason and can never eat into govt fees. The report
+  shows discounts given / extra collected; the printed bill shows a Discount row but folds extra
+  into the last line.
 - **Payments.** Cash / UPI / Card, or Credit (no payment yet; balance tracked, part-payments
   recorded later). Invoice numbers are `AKS/<FY>/<n>`, sequential per April-March year.
 - **No edits or deletes.** Invoices are only cancelled (owner-only, reason required); the number
@@ -144,7 +151,7 @@ in English.
   bands, billing-only items). Services are now owner-write only.
 - Center name/CSC ID/address/phone on the printed bill live in `src/lib/center.ts`; logo is
   `public/akshaya-logo.png`.
-- Migration: `20261006000025_invoicing.sql`. Billing-only items and **placeholder** default
+- Migrations: `20261006000025_invoicing.sql`, `20261006000026_charge_adjustments.sql`. Billing-only items and **placeholder** default
   bands are in `seed.sql` - set the real bands on the Prices page before use.
 
 ## i18n

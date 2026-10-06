@@ -42,6 +42,7 @@ export type Database = {
           service_charge: number
           service_id: string | null
           sort_order: number
+          standard_charge: number | null
         }
         Insert: {
           charge_overridden?: boolean
@@ -55,6 +56,7 @@ export type Database = {
           service_charge?: number
           service_id?: string | null
           sort_order?: number
+          standard_charge?: number | null
         }
         Update: {
           charge_overridden?: boolean
@@ -68,6 +70,7 @@ export type Database = {
           service_charge?: number
           service_id?: string | null
           sort_order?: number
+          standard_charge?: number | null
         }
         Relationships: [
           {
@@ -133,6 +136,7 @@ export type Database = {
       }
       invoices: {
         Row: {
+          adjustment_reason: string | null
           cancel_reason: string | null
           cancelled_at: string | null
           cancelled_by: string | null
@@ -140,6 +144,8 @@ export type Database = {
           created_by: string | null
           customer_name: string
           customer_phone: string | null
+          discount_amount: number
+          extra_amount: number
           govt_total: number
           grand_total: number | null
           id: string
@@ -151,6 +157,7 @@ export type Database = {
           status: string
         }
         Insert: {
+          adjustment_reason?: string | null
           cancel_reason?: string | null
           cancelled_at?: string | null
           cancelled_by?: string | null
@@ -158,6 +165,8 @@ export type Database = {
           created_by?: string | null
           customer_name: string
           customer_phone?: string | null
+          discount_amount?: number
+          extra_amount?: number
           govt_total?: number
           grand_total?: number | null
           id?: string
@@ -169,6 +178,7 @@ export type Database = {
           status?: string
         }
         Update: {
+          adjustment_reason?: string | null
           cancel_reason?: string | null
           cancelled_at?: string | null
           cancelled_by?: string | null
@@ -176,6 +186,8 @@ export type Database = {
           created_by?: string | null
           customer_name?: string
           customer_phone?: string | null
+          discount_amount?: number
+          extra_amount?: number
           govt_total?: number
           grand_total?: number | null
           id?: string

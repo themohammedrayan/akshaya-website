@@ -94,9 +94,14 @@ export default async function InvoiceDetailPage({
                 <tr key={item.id} className="border-b border-zinc-100">
                   <td className="py-2 pr-2 text-zinc-900">
                     {item.description}
-                    {item.charge_overridden && (
-                      <span className="ml-2 text-xs text-amber-700" title={item.override_reason ?? ""}>
-                        (override: {item.override_reason})
+                    {item.charge_overridden && item.standard_charge !== null && (
+                      <span
+                        className={`ml-2 text-xs ${
+                          Number(item.service_charge) < Number(item.standard_charge) ? "text-amber-700" : "text-emerald-700"
+                        }`}
+                      >
+                        (usual {formatINR(item.standard_charge)}
+                        {item.override_reason ? ` · ${item.override_reason}` : ""})
                       </span>
                     )}
                   </td>
@@ -128,6 +133,17 @@ export default async function InvoiceDetailPage({
             <dd className="font-semibold">{formatINR(invoice.paid_total)}</dd>
           </div>
         </dl>
+        {Number(invoice.extra_amount) > 0 && (
+          <p className="mt-3 text-sm text-emerald-700">
+            Extra kept on this bill: {formatINR(invoice.extra_amount)} (included in service charge)
+          </p>
+        )}
+        {Number(invoice.discount_amount) > 0 && (
+          <p className="mt-3 text-sm text-amber-700">
+            Discount on this bill: −{formatINR(invoice.discount_amount)}
+            {invoice.adjustment_reason ? ` — ${invoice.adjustment_reason}` : ""}
+          </p>
+        )}
         {invoice.notes && <p className="mt-3 text-sm text-zinc-600">Note: {invoice.notes}</p>}
       </div>
 
