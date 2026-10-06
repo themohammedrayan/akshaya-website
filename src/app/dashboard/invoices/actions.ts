@@ -9,7 +9,12 @@ import { isValidIndianPhone } from "@/lib/phone";
 const money = z.number().finite().min(0).max(10_000_000);
 
 const invoiceSchema = z.object({
-  customerName: z.string().trim().min(1, "Enter the customer's name").max(200),
+  // Optional at the counter - blank bills are saved as a walk-in customer.
+  customerName: z
+    .string()
+    .trim()
+    .max(200)
+    .transform((v) => v || "Walk-in customer"),
   customerPhone: z
     .string()
     .trim()

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { formatDateTimeIST, formatINR, paymentModeLabel } from "@/lib/billing";
 import { CENTER } from "@/lib/center";
 
@@ -55,7 +54,10 @@ export function InvoiceSheet({ invoice }: { invoice: PrintableInvoice }) {
 
         <header className="flex items-start justify-between border-b border-black pb-2">
           <div className="flex items-start gap-3">
-            <Image src="/akshaya-logo.png" alt="Akshaya" width={64} height={53} priority className="h-[14mm] w-auto" />
+            {/* Plain <img>, not next/image: the print dialog opens on page load and
+                must not wait on the image optimizer. PrintButton waits for it. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/akshaya-logo.png" alt="Akshaya" width={64} height={53} className="h-[14mm] w-auto" />
             <div>
               <p className="text-base font-bold">{CENTER.name}</p>
               <p>CSC ID: {CENTER.cscId}</p>
