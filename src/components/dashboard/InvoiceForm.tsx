@@ -1,8 +1,8 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
-import { createInvoice, type InvoiceFormState } from "@/app/dashboard/invoices/actions";
+import { createInvoice, findCustomer, type InvoiceFormState, type KnownCustomer } from "@/app/dashboard/invoices/actions";
 import { formatINR, round2, serviceChargeFor, type BillableService, type ChargeSlab } from "@/lib/billing";
 import { isValidIndianPhone } from "@/lib/phone";
 import { pickLang } from "@/lib/i18n/pickLang";
@@ -93,7 +93,8 @@ export function InvoiceForm({
     const service = services.find((s) => s.id === prefill.serviceId);
     return service && !service.variable_govt_fee ? [fixedLine(service)] : [];
   });
-  const [customerOpen, setCustomerOpen] = useState(!!prefill.customerName);
+  const [knownCustomer, setKnownCustomer] = useState<KnownCustomer | null>(null);
+  const lookupId = useRef(0);
   const [customerName, setCustomerName] = useState(prefill.customerName ?? "");
   const [customerPhone, setCustomerPhone] = useState(prefill.customerPhone ?? "");
   const [mode, setMode] = useState<Mode>("cash");
@@ -167,6 +168,21 @@ export function InvoiceForm({
         ? current.map((l) => (l === existing ? { ...l, qty: l.qty + 1 } : l))
         : [...current, fixedLine(service)];
     });
+  }
+
+  function changePhone(value: string) {
+    setCustomerPhone(value);
+    setKnownCustomer(null);
+    const id = ++lookupId.current;
+    if (!isValidIndianPhone(value)) return;
+    // Best effort: a slow or failed lookup never blocks billing.
+    findCustomer(value)
+      .then((found) => {
+        if (id !== lookupId.current || !found) return;
+        setKnownCustomer(found);
+        if (found.name) setCustomerName((current) => (current.trim() ? current : found.name!));
+      })
+      .catch(() => {});
   }
 
   function changeQty(key: number, delta: number) {
@@ -460,38 +476,42 @@ export function InvoiceForm({
               ))}
           </div>
 
-          {/* Customer */}
+          {/* Customer - phone first; a known number fills in the name */}
           <div className="border-t border-zinc-100 px-5 py-4">
-            {customerOpen ? (
-              <div className="space-y-3">
-                <p className="text-sm font-medium text-zinc-600">{tr("customer")}</p>
-                <input
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  placeholder={tr("name")}
-                  className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base"
-                />
-                <input
-                  value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
-                  placeholder={tr("phone")}
-                  inputMode="tel"
-                  className={clsx(
-                    "w-full rounded-xl border px-4 py-3 text-base",
-                    phoneError ? "border-red-400" : "border-zinc-300",
+            <p className="text-sm font-medium text-zinc-600">{tr("customer")}</p>
+            <div className="mt-2 space-y-2">
+              <input
+                value={customerPhone}
+                onChange={(e) => changePhone(e.target.value)}
+                placeholder={tr("phone")}
+                inputMode="tel"
+                autoComplete="off"
+                className={clsx(
+                  "w-full rounded-xl border px-4 py-3 text-base",
+                  phoneError ? "border-red-400" : "border-zinc-300",
+                )}
+              />
+              {phoneError && <p className="text-sm text-red-600">{tr("phoneInvalid")}</p>}
+              <input
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                placeholder={tr("name")}
+                autoComplete="off"
+                className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-base"
+              />
+              {knownCustomer && (
+                <p className="text-sm">
+                  {knownCustomer.billCount > 0 && (
+                    <span className="text-emerald-700">{tr("returning", { count: knownCustomer.billCount })}</span>
                   )}
-                />
-                {phoneError && <p className="text-sm text-red-600">{tr("phoneInvalid")}</p>}
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setCustomerOpen(true)}
-                className="text-base font-medium text-brand-700 hover:underline"
-              >
-                + {tr("customer")}
-              </button>
-            )}
+                  {knownCustomer.due > 0 && (
+                    <span className="ml-2 font-semibold text-amber-700">
+                      {tr("unpaidBalance", { amount: formatINR(knownCustomer.due) })}
+                    </span>
+                  )}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Payment */}

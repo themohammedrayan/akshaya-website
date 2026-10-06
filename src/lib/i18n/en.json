@@ -140,7 +140,7 @@
       "total": "Total",
       "govt": "Govt",
       "charge": "Charge",
-      "customer": "Customer details (optional)",
+      "customer": "Customer (optional)",
       "name": "Customer name",
       "phone": "Phone number",
       "walkIn": "Walk-in customer",
@@ -188,7 +188,9 @@
       "customerPaysLabel": "Customer pays",
       "removeAdjust": "Remove",
       "belowGovt": "Can't go below the govt fees ({amount}) - those are paid in full",
-      "keepExtra": "No change? Keep {amount} as extra"
+      "keepExtra": "No change? Keep {amount} as extra",
+      "returning": "✓ Returning customer · {count} earlier bills",
+      "unpaidBalance": "Unpaid balance {amount}"
     },
     "bills": {
       "title": "Bills",

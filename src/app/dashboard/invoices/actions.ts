@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getStaffProfile } from "@/lib/staff";
-import { isValidIndianPhone } from "@/lib/phone";
+import { isValidIndianPhone, normalizePhone } from "@/lib/phone";
 
 const money = z.number().finite().min(0).max(10_000_000);
 
@@ -14,7 +14,7 @@ const invoiceSchema = z.object({
     .string()
     .trim()
     .max(200)
-    .transform((v) => v || "Walk-in customer"),
+    .transform((v) => v || WALK_IN),
   customerPhone: z
     .string()
     .trim()
@@ -46,6 +46,42 @@ const invoiceSchema = z.object({
 
 export type InvoiceFormState = { error: string | null };
 
+export type KnownCustomer = { name: string | null; billCount: number; due: number };
+
+const WALK_IN = "Walk-in customer";
+
+/** Returning-customer lookup for the New bill screen: last name used, bill count, unpaid balance. */
+export async function findCustomer(phone: string): Promise<KnownCustomer | null> {
+  if (!isValidIndianPhone(phone)) return null;
+  const { supabase, profile } = await getStaffProfile();
+  if (!profile) return null;
+
+  const digits = normalizePhone(phone);
+  const { data: bills } = await supabase
+    .from("invoices")
+    .select("customer_name, status, grand_total, paid_total")
+    .ilike("customer_phone", `%${digits}`)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  let name = bills?.find((b) => b.customer_name && b.customer_name !== WALK_IN)?.customer_name ?? null;
+  if (!name) {
+    const { data: request } = await supabase
+      .from("requests")
+      .select("customer_name")
+      .ilike("customer_phone", `%${digits}`)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    name = request?.customer_name ?? null;
+  }
+
+  const issued = (bills ?? []).filter((b) => b.status === "issued");
+  const due = issued.reduce((sum, b) => sum + Math.max(Number(b.grand_total) - Number(b.paid_total), 0), 0);
+  if (!name && issued.length === 0) return null;
+  return { name, billCount: issued.length, due };
+}
+
 export async function createInvoice(_prev: InvoiceFormState, formData: FormData): Promise<InvoiceFormState> {
   const { supabase, profile } = await getStaffProfile();
   if (!profile) return { error: "Please sign in again." };
@@ -66,7 +102,8 @@ export async function createInvoice(_prev: InvoiceFormState, formData: FormData)
   const { data: invoiceId, error } = await supabase.rpc("create_invoice", {
     p_invoice: {
       customer_name: input.customerName,
-      customer_phone: input.customerPhone,
+      // Stored as the bare 10 digits so lookups match however it was typed.
+      customer_phone: input.customerPhone ? normalizePhone(input.customerPhone) : "",
       request_id: input.requestId,
       notes: input.notes,
       extra: input.extra,
