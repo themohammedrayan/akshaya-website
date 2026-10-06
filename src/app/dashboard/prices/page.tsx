@@ -23,7 +23,7 @@ export default async function PricesPage({
   const [{ data: services }, { data: slabs }] = await Promise.all([
     supabase
       .from("services")
-      .select("id, name_en, category, active, show_on_website, variable_govt_fee, default_govt_fee, default_service_charge")
+      .select("id, name_en, category, active, show_on_website, variable_govt_fee, default_govt_fee, default_service_charge, govt_paid_from")
       .order("sort_order"),
     supabase.from("service_charge_slabs").select("service_id, up_to, charge"),
   ]);
@@ -89,6 +89,17 @@ export default async function PricesPage({
                     inputMode="decimal"
                     className={`mt-1 block ${inputClass}`}
                   />
+                </label>
+                <label className="text-xs text-zinc-500">
+                  Govt fee paid from
+                  <select
+                    name="govtPaidFrom"
+                    defaultValue={s.govt_paid_from}
+                    className="mt-1 block rounded-lg border border-zinc-300 px-2 py-1.5 text-sm"
+                  >
+                    <option value="bank">Bank</option>
+                    <option value="wallet">Wallet</option>
+                  </select>
                 </label>
                 <label className="flex items-center gap-1.5 text-xs text-zinc-600">
                   <input type="checkbox" name="showOnWebsite" defaultChecked={s.show_on_website} />

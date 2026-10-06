@@ -23,6 +23,7 @@ const pricingSchema = z.object({
   defaultGovtFee: money,
   defaultServiceCharge: money,
   variableGovtFee: z.boolean(),
+  govtPaidFrom: z.enum(["bank", "wallet"]),
   showOnWebsite: z.boolean(),
   active: z.boolean(),
 });
@@ -34,6 +35,7 @@ export async function updateServicePricing(formData: FormData) {
     defaultGovtFee: formData.get("defaultGovtFee") || 0,
     defaultServiceCharge: formData.get("defaultServiceCharge") || 0,
     variableGovtFee: formData.get("variableGovtFee") === "on",
+    govtPaidFrom: formData.get("govtPaidFrom") ?? "bank",
     showOnWebsite: formData.get("showOnWebsite") === "on",
     active: formData.get("active") === "on",
   });
@@ -46,6 +48,7 @@ export async function updateServicePricing(formData: FormData) {
       default_govt_fee: p.variableGovtFee ? 0 : p.defaultGovtFee,
       default_service_charge: p.defaultServiceCharge,
       variable_govt_fee: p.variableGovtFee,
+      govt_paid_from: p.govtPaidFrom,
       show_on_website: p.showOnWebsite,
       active: p.active,
       // Keep the public storefront price in step with billing.
