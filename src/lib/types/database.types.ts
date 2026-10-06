@@ -14,6 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      day_closings: {
+        Row: {
+          actual_bank: number
+          actual_cash: number
+          actual_wallet: number
+          breakdown: Json
+          close_date: string
+          closed_at: string
+          closed_by: string | null
+          expected_bank: number
+          expected_cash: number
+          expected_wallet: number
+          id: string
+          is_opening: boolean
+          note: string | null
+          reopened_at: string | null
+          reopened_by: string | null
+          status: string
+          upi_pending: number
+        }
+        Insert: {
+          actual_bank: number
+          actual_cash: number
+          actual_wallet: number
+          breakdown?: Json
+          close_date: string
+          closed_at?: string
+          closed_by?: string | null
+          expected_bank: number
+          expected_cash: number
+          expected_wallet: number
+          id?: string
+          is_opening?: boolean
+          note?: string | null
+          reopened_at?: string | null
+          reopened_by?: string | null
+          status?: string
+          upi_pending?: number
+        }
+        Update: {
+          actual_bank?: number
+          actual_cash?: number
+          actual_wallet?: number
+          breakdown?: Json
+          close_date?: string
+          closed_at?: string
+          closed_by?: string | null
+          expected_bank?: number
+          expected_cash?: number
+          expected_wallet?: number
+          id?: string
+          is_opening?: boolean
+          note?: string | null
+          reopened_at?: string | null
+          reopened_by?: string | null
+          status?: string
+          upi_pending?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "day_closings_closed_by_fkey"
+            columns: ["closed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "day_closings_reopened_by_fkey"
+            columns: ["reopened_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoice_counters: {
         Row: {
           fy: string
@@ -222,6 +297,63 @@ export type Database = {
           },
         ]
       }
+      money_movements: {
+        Row: {
+          amount: number
+          cancel_reason: string | null
+          cancelled_by: string | null
+          created_by: string | null
+          from_account: string
+          id: string
+          kind: string
+          moved_at: string
+          note: string | null
+          status: string
+          to_account: string | null
+        }
+        Insert: {
+          amount: number
+          cancel_reason?: string | null
+          cancelled_by?: string | null
+          created_by?: string | null
+          from_account: string
+          id?: string
+          kind: string
+          moved_at?: string
+          note?: string | null
+          status?: string
+          to_account?: string | null
+        }
+        Update: {
+          amount?: number
+          cancel_reason?: string | null
+          cancelled_by?: string | null
+          created_by?: string | null
+          from_account?: string
+          id?: string
+          kind?: string
+          moved_at?: string
+          note?: string | null
+          status?: string
+          to_account?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "money_movements_cancelled_by_fkey"
+            columns: ["cancelled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "money_movements_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -368,6 +500,7 @@ export type Database = {
           description_en: string
           description_ml: string
           fee: number
+          govt_paid_from: string
           id: string
           name_en: string
           name_ml: string
@@ -388,6 +521,7 @@ export type Database = {
           description_en?: string
           description_ml?: string
           fee?: number
+          govt_paid_from?: string
           id?: string
           name_en: string
           name_ml: string
@@ -408,6 +542,7 @@ export type Database = {
           description_en?: string
           description_ml?: string
           fee?: number
+          govt_paid_from?: string
           id?: string
           name_en?: string
           name_ml?: string
@@ -498,6 +633,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_money_movement: {
+        Args: {
+          p_amount: number
+          p_from: string
+          p_kind: string
+          p_note: string
+          p_to: string | null
+        }
+        Returns: string
+      }
       add_invoice_payment: {
         Args: {
           p_amount: number
@@ -511,7 +656,17 @@ export type Database = {
         Args: { p_invoice_id: string; p_reason: string }
         Returns: undefined
       }
+      cancel_money_movement: {
+        Args: { p_id: string; p_reason: string }
+        Returns: undefined
+      }
+      close_day: {
+        Args: { p_bank: number; p_cash: number; p_date: string; p_wallet: number }
+        Returns: Json
+      }
       create_invoice: { Args: { p_invoice: Json }; Returns: string }
+      day_close_result: { Args: { p_date: string }; Returns: Json }
+      day_close_status: { Args: never; Returns: Json }
       financial_summary: {
         Args: { p_from: string; p_to: string }
         Returns: Json
@@ -536,6 +691,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      reopen_day: { Args: { p_date: string }; Returns: undefined }
       save_charge_slabs: {
         Args: { p_service_id: string | null; p_slabs: Json }
         Returns: undefined
@@ -543,6 +699,14 @@ export type Database = {
       service_charge_for: {
         Args: { p_govt_amount: number; p_service_id: string }
         Returns: number
+      }
+      set_closing_note: {
+        Args: { p_date: string; p_note: string }
+        Returns: undefined
+      }
+      set_opening_balances: {
+        Args: { p_bank: number; p_cash: number; p_date: string; p_wallet: number }
+        Returns: undefined
       }
       submit_request: {
         Args: {

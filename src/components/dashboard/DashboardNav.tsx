@@ -4,11 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { useTranslation } from "@/lib/i18n/useTranslation";
-import { ChartIcon, FileIcon, GlobeIcon, ListIcon, ReceiptIcon, TagIcon } from "./icons";
+import { ChartIcon, FileIcon, GlobeIcon, ListIcon, ReceiptIcon, SafeIcon, TagIcon } from "./icons";
 
 const ITEMS = [
   { href: "/dashboard/invoices/new", label: "newBill", Icon: ReceiptIcon, primary: true },
   { href: "/dashboard/invoices", label: "bills", Icon: ListIcon },
+  { href: "/dashboard/close", label: "dayClose", Icon: SafeIcon },
   { href: "/dashboard", label: "requests", Icon: GlobeIcon },
   { href: "/dashboard/reports", label: "reports", Icon: ChartIcon, ownerOnly: true },
   { href: "/dashboard/prices", label: "prices", Icon: TagIcon, ownerOnly: true },

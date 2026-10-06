@@ -154,6 +154,19 @@ in English.
 - Migrations: `20261006000025_invoicing.sql`, `20261006000026_charge_adjustments.sql`. Billing-only items and **placeholder** default
   bands are in `seed.sql` - set the real bands on the Prices page before use.
 
+## Day close (staff dashboard)
+
+`/dashboard/close` - end-of-day reconciliation of the three places money sits: **cash drawer,
+bank, portal wallet**. Staff record non-bill money movements (expense, cash → bank deposit, owner
+withdrawal, wallet top-up), then enter the counted cash and the bank/wallet balances *before*
+seeing the expected figures (blind count). `close_day()` computes expected balances from the
+previous close's actual balances plus everything since: cash bills, UPI/card **settling T+1**
+(today's show as "arriving tomorrow"), govt fees paid from bank or wallet (per service:
+`services.govt_paid_from`, set on the Prices page) and the movements. Differences over ₹10 need a
+note. The owner sets opening balances once, sees `/dashboard/close/history` (+ CSV), can cancel
+movements and reopen the latest close. Reports show shop expenses and net income. Migration:
+`20261007000027_day_closing.sql`.
+
 ## i18n
 
 Simple dictionary approach (`src/lib/i18n/en.json` / `ml.json`) + a cookie-persisted React

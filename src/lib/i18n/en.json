@@ -122,7 +122,8 @@
       "reports": "Reports",
       "prices": "Prices",
       "printedForms": "Printed forms",
-      "logout": "Log out"
+      "logout": "Log out",
+      "dayClose": "Day close"
     },
     "newBill": {
       "search": "Search service…",
@@ -213,6 +214,74 @@
     "print": {
       "back": "Open bill",
       "print": "Print"
+    },
+    "close": {
+      "title": "Day close",
+      "lastClosed": "Last closed: {date}",
+      "go": "Go",
+      "history": "Closing history",
+      "openingTitle": "Set opening balances",
+      "openingHelp": "One-time setup. Enter how much money is in each place at the end of the chosen day. Every daily close starts from here.",
+      "openingDate": "Balances as at the end of",
+      "saveOpening": "Save opening balances",
+      "ownerMustOpen": "The owner needs to set the opening balances once before the first day close.",
+      "account": {
+        "cash": "Cash in drawer",
+        "bank": "Bank balance",
+        "wallet": "Wallet balance"
+      },
+      "step1": "Step 1",
+      "moneyInOut": "Money in / out (not bills)",
+      "moneyInOutHelp": "Record anything that moved money today besides customer bills.",
+      "kind": {
+        "expense": "Expense",
+        "deposit": "Cash → Bank",
+        "withdrawal": "Owner took",
+        "topup": "Wallet top-up"
+      },
+      "kindHelp": {
+        "expense": "Paper, ink, tea, electricity, rent…",
+        "deposit": "Cash taken from the drawer and deposited in the bank.",
+        "withdrawal": "Money the owner took out for personal use.",
+        "topup": "Recharge of the Akshaya / portal wallet."
+      },
+      "noMovements": "Nothing recorded yet.",
+      "entriesTotal": "{count} entries · {amount}",
+      "cancelEntry": "Cancel entry",
+      "cancelReason": "Why cancel this entry?",
+      "amount": "Amount",
+      "paidFrom": "Paid from",
+      "note": "Note (optional)",
+      "expenseNote": "What was it for? (required)",
+      "cancel": "Cancel",
+      "save": "Save",
+      "step2": "Step 2",
+      "countTitle": "Count & enter balances",
+      "countHelp": "Count the cash and check the bank app and wallet. The expected amounts are shown only after you save.",
+      "cashHint": "Count all notes and coins in the drawer",
+      "bankHint": "From the bank app / passbook",
+      "walletHint": "From the Akshaya / portal wallet",
+      "closeButton": "Close day {date}",
+      "closing": "Saving…",
+      "step3": "Day closed",
+      "resultTitle": "Closing for {date}",
+      "expected": "Expected",
+      "actual": "Actual",
+      "difference": "Difference",
+      "matches": "✓ Matches",
+      "upiPending": "UPI / card received today: {amount} — arrives in the bank tomorrow and is counted then.",
+      "howCalculated": "How the expected amounts were worked out",
+      "bd": {
+        "cash": "Cash received on bills: {amount}",
+        "upi": "UPI / card settled into bank: {amount}",
+        "govtBank": "Govt fees paid from bank: {amount}",
+        "govtWallet": "Govt fees paid from wallet: {amount}"
+      },
+      "noteRequired": "There is a difference of more than ₹10 — write what happened (required)",
+      "noteOptional": "Note (optional)",
+      "saveNote": "Save note",
+      "reopen": "Reopen this day (owner)",
+      "reopenConfirm": "Reopen this day so the balances can be counted again?"
     }
   }
 }

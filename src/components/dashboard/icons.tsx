@@ -90,3 +90,10 @@ export const LogoutIcon = (p: IconProps) => (
     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
   </Svg>
 );
+export const SafeIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <circle cx="12" cy="12" r="3" />
+    <path d="M12 9v.01M7 20v1M17 20v1" />
+  </Svg>
+);

@@ -9,6 +9,7 @@ type Summary = {
   collected: { total: number; cash: number; upi: number; card: number };
   outstanding: { count: number; total: number };
   overrides: number;
+  expenses: number;
   adjustments: { discount_total: number; discount_bills: number; extra_total: number; extra_bills: number };
   by_service: { name: string; qty: number | null; govt_total: number; service_total: number }[];
 };
@@ -89,6 +90,10 @@ export default async function ReportsPage({
             <Card label="Total billed" value={summary.billed.grand_total} />
             <Card label="Govt fees (pass-through)" value={summary.billed.govt_total} note="Not income" />
             <Card label="Our income (service charges)" value={summary.billed.service_total} highlight />
+          </div>
+          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+            <Card label="Shop expenses" value={summary.expenses} note="Recorded in Day close" />
+            <Card label="Net (income − expenses)" value={summary.billed.service_total - summary.expenses} />
           </div>
           {(summary.adjustments.discount_total > 0 || summary.adjustments.extra_total > 0) && (
             <p className="mt-2 text-sm text-zinc-600">
