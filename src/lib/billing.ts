@@ -75,3 +75,8 @@ export function formatDateTimeIST(iso: string): string {
 export function isValidDate(value: string | undefined): value is string {
   return !!value && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value));
 }
+
+/** ISO timestamp `days` days before now (per-request, for server queries). */
+export function daysAgoISO(days: number): string {
+  return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+}

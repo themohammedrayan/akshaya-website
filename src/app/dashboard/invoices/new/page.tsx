@@ -1,6 +1,8 @@
-import Link from "next/link";
 import { getStaffProfile } from "@/lib/staff";
 import { InvoiceForm } from "@/components/dashboard/InvoiceForm";
+import { daysAgoISO } from "@/lib/billing";
+
+const USAGE_WINDOW_DAYS = 30;
 
 export default async function NewInvoicePage({
   searchParams,
@@ -10,13 +12,21 @@ export default async function NewInvoicePage({
   const { request: requestId } = await searchParams;
   const { supabase, profile } = await getStaffProfile();
 
-  const [{ data: services }, { data: slabs }, { data: request }] = await Promise.all([
+  const since = daysAgoISO(USAGE_WINDOW_DAYS);
+
+  const [{ data: services }, { data: slabs }, { data: recentLines }, { data: request }] = await Promise.all([
     supabase
       .from("services")
-      .select("id, name_en, variable_govt_fee, default_govt_fee, default_service_charge")
+      .select("id, name_en, name_ml, category, variable_govt_fee, default_govt_fee, default_service_charge, sort_order")
       .eq("active", true)
       .order("sort_order"),
     supabase.from("service_charge_slabs").select("service_id, up_to, charge"),
+    // Most-used services float to the top of the tile grid.
+    supabase
+      .from("invoice_items")
+      .select("service_id, qty, invoice:invoices!inner(created_at)")
+      .not("service_id", "is", null)
+      .gte("invoice.created_at", since),
     requestId
       ? supabase
           .from("requests")
@@ -26,30 +36,26 @@ export default async function NewInvoicePage({
       : Promise.resolve({ data: null }),
   ]);
 
+  const usage = new Map<string, number>();
+  for (const line of recentLines ?? []) {
+    if (line.service_id) usage.set(line.service_id, (usage.get(line.service_id) ?? 0) + line.qty);
+  }
+  const sorted = [...(services ?? [])].sort(
+    (a, b) => (usage.get(b.id) ?? 0) - (usage.get(a.id) ?? 0) || a.sort_order - b.sort_order,
+  );
+
   return (
-    <div className="mx-auto max-w-3xl">
-      <Link href="/dashboard/invoices" className="text-sm text-zinc-500 hover:text-brand-700">
-        ← Invoices
-      </Link>
-      <h1 className="mt-2 text-xl font-bold text-zinc-900">New invoice</h1>
-      {request && (
-        <p className="mt-1 text-sm text-zinc-500">
-          For website request <span className="font-mono">{request.tracking_code}</span>
-        </p>
-      )}
-      <div className="mt-4">
-        <InvoiceForm
-          services={services ?? []}
-          slabs={slabs ?? []}
-          isOwner={profile?.role === "owner"}
-          prefill={{
-            customerName: request?.customer_name,
-            customerPhone: request?.customer_phone,
-            requestId: request?.id ?? null,
-            serviceId: request?.service_id ?? null,
-          }}
-        />
-      </div>
-    </div>
+    <InvoiceForm
+      services={sorted}
+      slabs={slabs ?? []}
+      isOwner={profile?.role === "owner"}
+      prefill={{
+        customerName: request?.customer_name,
+        customerPhone: request?.customer_phone,
+        requestId: request?.id ?? null,
+        trackingCode: request?.tracking_code ?? null,
+        serviceId: request?.service_id ?? null,
+      }}
+    />
   );
 }

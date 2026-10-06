@@ -1,10 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import clsx from "clsx";
 
 export function LanguageToggle() {
   const { lang, setLang, t } = useTranslation();
+  const router = useRouter();
 
   return (
     <div className="inline-flex rounded-full border border-zinc-300 p-0.5 text-sm">
@@ -12,7 +14,11 @@ export function LanguageToggle() {
         <button
           key={option}
           type="button"
-          onClick={() => setLang(option)}
+          onClick={() => {
+            setLang(option);
+            // Re-render server components (e.g. dashboard labels) in the new language.
+            router.refresh();
+          }}
           aria-pressed={lang === option}
           className={clsx(
             "rounded-full px-3 py-1 font-medium transition-colors",

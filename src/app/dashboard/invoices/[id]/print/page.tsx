@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PrintButton } from "@/components/dashboard/PrintButton";
 import { InvoiceSheet } from "@/components/dashboard/InvoiceSheet";
+import { PlusIcon } from "@/components/dashboard/icons";
+import { getServerTranslation } from "@/lib/i18n/server";
 
 // A4 page with no margins - InvoiceSheet positions itself in the top half.
 const PRINT_CSS = `
@@ -23,6 +25,7 @@ export default async function InvoicePrintPage({
   const { id } = await params;
   const { auto } = await searchParams;
   const supabase = await createClient();
+  const { t } = await getServerTranslation();
 
   const { data: invoice } = await supabase
     .from("invoices")
@@ -38,15 +41,18 @@ export default async function InvoicePrintPage({
     <div>
       <style>{PRINT_CSS}</style>
 
-      <div className="mb-4 flex items-center justify-between print:hidden">
-        <Link href={`/dashboard/invoices/${id}`} className="text-sm text-zinc-500 hover:text-brand-700">
-          ← Back to invoice
+      <div className="mx-auto mb-4 flex max-w-[210mm] flex-wrap items-center justify-between gap-3 print:hidden">
+        <Link href={`/dashboard/invoices/${id}`} className="text-base text-zinc-500 hover:text-brand-700">
+          ← {t("billing.print.back")}
         </Link>
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/invoices/new" className="text-sm font-medium text-brand-700 hover:underline">
-            + New invoice
+          <PrintButton autoPrint={auto === "1"} label={t("billing.print.print")} />
+          <Link
+            href="/dashboard/invoices/new"
+            className="flex min-h-12 items-center gap-2 rounded-xl bg-emerald-600 px-5 text-base font-bold text-white hover:bg-emerald-700"
+          >
+            <PlusIcon /> {t("billing.nav.newBill")}
           </Link>
-          <PrintButton autoPrint={auto === "1"} />
         </div>
       </div>
 

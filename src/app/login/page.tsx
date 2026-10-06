@@ -28,7 +28,7 @@ function LoginForm() {
       return;
     }
 
-    router.replace(searchParams.get("redirect") ?? "/dashboard");
+    router.replace(searchParams.get("redirect") ?? "/dashboard/invoices/new");
     router.refresh();
   }
 

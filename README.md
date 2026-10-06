@@ -117,7 +117,12 @@ intentional (that's the whole point of `submit_request` and `get_request_status`
 
 ## Invoicing (staff dashboard)
 
-`/dashboard/invoices` - billing for walk-ins and website requests, printed on half an A4 sheet.
+`/dashboard/invoices/new` - the screen staff land on after login. Tap-to-add service tiles
+(most-used first, searchable in English/Malayalam), a pop-up for bill/tax amounts, big payment
+buttons with cash change, and one Save & Print button; bills print on half an A4 sheet. Billing
+screens follow the EN/ML toggle (`billing.*` keys in `src/lib/i18n/*.json`; server components use
+`getServerTranslation()` from `src/lib/i18n/server.ts`). Reports, Prices and the printed bill stay
+in English.
 
 - **Income vs pass-through.** Every invoice line stores `govt_fee` (collected on the customer's
   behalf and paid on to the department/utility - *not* income) and `service_charge` (the

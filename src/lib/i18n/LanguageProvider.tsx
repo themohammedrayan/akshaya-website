@@ -1,30 +1,14 @@
 "use client";
 
 import { createContext, useCallback, useMemo, useState } from "react";
-import en from "./en.json";
-import ml from "./ml.json";
+import { translate, type Lang } from "./dictionary";
 
-export type Lang = "en" | "ml";
-
-const dictionaries = { en, ml } satisfies Record<Lang, unknown>;
-
-type Dictionary = typeof en;
-
-function getPath(dict: Dictionary, path: string): string {
-  const value = path.split(".").reduce<unknown>((acc, key) => {
-    if (acc && typeof acc === "object" && key in acc) {
-      return (acc as Record<string, unknown>)[key];
-    }
-    return undefined;
-  }, dict);
-
-  return typeof value === "string" ? value : path;
-}
+export type { Lang };
 
 export type LanguageContextValue = {
   lang: Lang;
   setLang: (lang: Lang) => void;
-  t: (path: string) => string;
+  t: (path: string, vars?: Record<string, string | number>) => string;
 };
 
 export const LanguageContext = createContext<LanguageContextValue | null>(null);
@@ -44,7 +28,7 @@ export function LanguageProvider({
   }, []);
 
   const t = useCallback(
-    (path: string) => getPath(dictionaries[lang] as Dictionary, path),
+    (path: string, vars?: Record<string, string | number>) => translate(lang, path, vars),
     [lang],
   );
 
