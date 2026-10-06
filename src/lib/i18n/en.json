@@ -174,9 +174,21 @@
       "otherDescription": "What is it?",
       "otherGovt": "Govt / department amount (if any)",
       "otherCharge": "Our charge",
-      "editTitle": "Change amounts (owner only)",
+      "editTitle": "Change service charge",
       "reason": "Reason for change",
-      "save2": "Save"
+      "save2": "Save",
+      "changeCharge": "Change",
+      "usual": "usual {amount}",
+      "usualCharge": "Usual charge: {amount}",
+      "govtEdit": "Govt fee",
+      "extra": "Extra",
+      "discount": "Discount",
+      "discountReason": "Reason for discount (e.g. bulk 10 certificates)",
+      "customerPaysDifferent": "Customer pays a different amount?",
+      "customerPaysLabel": "Customer pays",
+      "removeAdjust": "Remove",
+      "belowGovt": "Can't go below the govt fees ({amount}) - those are paid in full",
+      "keepExtra": "No change? Keep {amount} as extra"
     },
     "bills": {
       "title": "Bills",

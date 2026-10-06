@@ -22,7 +22,9 @@ export async function GET(request: NextRequest) {
 
   const { data, error } = await supabase
     .from("invoices")
-    .select("invoice_no, created_at, customer_name, customer_phone, status, paid_total, grand_total, items:invoice_items(*)")
+    .select(
+      "invoice_no, created_at, customer_name, customer_phone, status, paid_total, grand_total, extra_amount, discount_amount, adjustment_reason, items:invoice_items(*)",
+    )
     .gte("created_at", start)
     .lt("created_at", end)
     .order("created_at");
@@ -38,13 +40,17 @@ export async function GET(request: NextRequest) {
     "Item",
     "Qty",
     "Govt fee (each)",
+    "Usual service charge (each)",
     "Service charge (each)",
     "Govt fee total",
     "Service charge total (income)",
     "Line total",
     "Invoice paid",
     "Invoice total",
-    "Override reason",
+    "Line reason",
+    "Bill extra",
+    "Bill discount",
+    "Bill adjustment reason",
   ];
 
   const rows = (data ?? []).flatMap((inv) =>
@@ -59,6 +65,7 @@ export async function GET(request: NextRequest) {
         item.description,
         item.qty,
         item.govt_fee,
+        item.standard_charge,
         item.service_charge,
         (item.qty * Number(item.govt_fee)).toFixed(2),
         (item.qty * Number(item.service_charge)).toFixed(2),
@@ -66,6 +73,9 @@ export async function GET(request: NextRequest) {
         inv.paid_total,
         inv.grand_total,
         item.override_reason,
+        inv.extra_amount,
+        inv.discount_amount,
+        inv.adjustment_reason,
       ]),
   );
 

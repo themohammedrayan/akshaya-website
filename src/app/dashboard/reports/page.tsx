@@ -9,7 +9,8 @@ type Summary = {
   collected: { total: number; cash: number; upi: number; card: number };
   outstanding: { count: number; total: number };
   overrides: number;
-  by_service: { name: string; qty: number; govt_total: number; service_total: number }[];
+  adjustments: { discount_total: number; discount_bills: number; extra_total: number; extra_bills: number };
+  by_service: { name: string; qty: number | null; govt_total: number; service_total: number }[];
 };
 
 function shiftDate(date: string, days: number): string {
@@ -89,9 +90,19 @@ export default async function ReportsPage({
             <Card label="Govt fees (pass-through)" value={summary.billed.govt_total} note="Not income" />
             <Card label="Our income (service charges)" value={summary.billed.service_total} highlight />
           </div>
-          {summary.overrides > 0 && (
-            <p className="mt-2 text-xs text-amber-700">
-              {summary.overrides} line(s) in this period were billed with an owner override.
+          {(summary.adjustments.discount_total > 0 || summary.adjustments.extra_total > 0) && (
+            <p className="mt-2 text-sm text-zinc-600">
+              Included in income:{" "}
+              <span className="font-medium text-amber-700">
+                discounts given −{formatINR(summary.adjustments.discount_total)} ({summary.adjustments.discount_bills} bill
+                {summary.adjustments.discount_bills === 1 ? "" : "s"})
+              </span>
+              {" · "}
+              <span className="font-medium text-emerald-700">
+                extra collected +{formatINR(summary.adjustments.extra_total)} ({summary.adjustments.extra_bills} bill
+                {summary.adjustments.extra_bills === 1 ? "" : "s"})
+              </span>
+              . <Link href="/dashboard/invoices" className="text-brand-700 hover:underline">See bills</Link> for reasons.
             </p>
           )}
 
@@ -137,7 +148,7 @@ export default async function ReportsPage({
                 {summary.by_service.map((row) => (
                   <tr key={row.name} className="border-b border-zinc-100">
                     <td className="px-4 py-2">{row.name}</td>
-                    <td className="px-4 py-2 text-right">{row.qty}</td>
+                    <td className="px-4 py-2 text-right">{row.qty ?? "—"}</td>
                     <td className="px-4 py-2 text-right">{formatINR(row.govt_total)}</td>
                     <td className="px-4 py-2 text-right font-medium text-emerald-700">{formatINR(row.service_total)}</td>
                   </tr>

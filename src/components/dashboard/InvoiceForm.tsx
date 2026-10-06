@@ -21,8 +21,9 @@ type Line = {
   name_ml: string;
   qty: number;
   govtFee: number; // per unit
-  serviceCharge: number; // per unit
-  overrideReason: string; // non-empty = owner override
+  serviceCharge: number; // per unit, what is actually billed
+  standardCharge: number | null; // price list / band charge; null for "Other item" lines
+  overrideReason: string; // required when serviceCharge < standardCharge (a discount)
 };
 
 type Modal =
@@ -100,8 +101,13 @@ export function InvoiceForm({
   const [reference, setReference] = useState("");
   const [partOpen, setPartOpen] = useState(false);
   const [paidNowInput, setPaidNowInput] = useState("");
+  // Bill-level "customer pays a different amount" -> extra or discount on the service charge.
+  const [finalOpen, setFinalOpen] = useState(false);
+  const [finalInput, setFinalInput] = useState("");
+  const [adjustmentReason, setAdjustmentReason] = useState("");
 
   function fixedLine(service: BillingService): Line {
+    const standard = serviceChargeFor(service, Number(service.default_govt_fee), slabs);
     return {
       key: lineKey++,
       serviceId: service.id,
@@ -109,7 +115,8 @@ export function InvoiceForm({
       name_ml: service.name_ml,
       qty: 1,
       govtFee: Number(service.default_govt_fee),
-      serviceCharge: serviceChargeFor(service, Number(service.default_govt_fee), slabs),
+      serviceCharge: standard,
+      standardCharge: standard,
       overrideReason: "",
     };
   }
@@ -124,14 +131,25 @@ export function InvoiceForm({
 
   const govtTotal = round2(lines.reduce((sum, l) => sum + l.qty * l.govtFee, 0));
   const chargeTotal = round2(lines.reduce((sum, l) => sum + l.qty * l.serviceCharge, 0));
-  const grandTotal = round2(govtTotal + chargeTotal);
+  const linesTotal = round2(govtTotal + chargeTotal);
   const itemCount = lines.reduce((sum, l) => sum + l.qty, 0);
+
+  const finalAmount = finalOpen && finalInput.trim() !== "" ? toAmount(finalInput) : linesTotal;
+  const difference = round2(finalAmount - linesTotal);
+  const extra = difference > 0 ? difference : 0;
+  const discount = difference < 0 ? -difference : 0;
+  // Govt fees are passed on in full - a discount can only come off the service charge.
+  const belowGovt = discount > chargeTotal;
+  const needsAdjustmentReason = discount > 0 && !adjustmentReason.trim();
+  const grandTotal = belowGovt ? linesTotal : finalAmount;
 
   const paidNow = mode === "credit" ? 0 : partOpen ? Math.min(toAmount(paidNowInput), grandTotal) : grandTotal;
   const balance = round2(grandTotal - paidNow);
   const cashGivenAmount = toAmount(cashGiven);
   const change = round2(cashGivenAmount - paidNow);
   const phoneError = customerPhone.trim() !== "" && !isValidIndianPhone(customerPhone);
+  // Small change the customer is happy to leave (no coins at the counter).
+  const canKeepChange = mode === "cash" && change > 0 && change <= 50 && !partOpen;
 
   function tapService(service: BillingService) {
     if (service.variable_govt_fee) {
@@ -139,7 +157,12 @@ export function InvoiceForm({
       return;
     }
     setLines((current) => {
-      const existing = current.find((l) => l.serviceId === service.id && !l.overrideReason);
+      const existing = current.find(
+        (l) =>
+          l.serviceId === service.id &&
+          l.serviceCharge === l.standardCharge &&
+          l.govtFee === Number(service.default_govt_fee),
+      );
       return existing
         ? current.map((l) => (l === existing ? { ...l, qty: l.qty + 1 } : l))
         : [...current, fixedLine(service)];
@@ -157,6 +180,9 @@ export function InvoiceForm({
     customerPhone: customerPhone.trim(),
     requestId: prefill.requestId ?? null,
     notes: "",
+    extra: belowGovt ? 0 : extra,
+    discount: belowGovt ? 0 : discount,
+    adjustmentReason: discount > 0 ? adjustmentReason.trim() : "",
     items: lines.map((l) => ({
       serviceId: l.serviceId,
       description: l.name_en,
@@ -284,12 +310,26 @@ export function InvoiceForm({
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="font-semibold text-zinc-900">{name(l)}</p>
-                      <p className="text-sm text-zinc-500">
+                      <button
+                        type="button"
+                        onClick={() => setModal({ kind: "edit", line: l })}
+                        className="text-left text-sm text-zinc-500 underline decoration-dotted underline-offset-4 hover:text-brand-700"
+                      >
                         {l.govtFee > 0 && `${tr("govt")} ${formatINR(l.govtFee)} + `}
                         {tr("charge")} {formatINR(l.serviceCharge)}
                         {l.qty > 1 && ` × ${l.qty}`}
-                      </p>
-                      {l.overrideReason && <p className="text-xs text-amber-700">✎ {l.overrideReason}</p>}
+                      </button>
+                      {l.standardCharge !== null && l.serviceCharge !== l.standardCharge && (
+                        <p
+                          className={clsx(
+                            "text-xs",
+                            l.serviceCharge < l.standardCharge ? "text-amber-700" : "text-emerald-700",
+                          )}
+                        >
+                          {tr("usual", { amount: formatINR(l.standardCharge) })}
+                          {l.overrideReason && ` · ${l.overrideReason}`}
+                        </p>
+                      )}
                     </div>
                     <p className="shrink-0 text-lg font-bold text-zinc-900">
                       {formatINR(l.qty * (l.govtFee + l.serviceCharge))}
@@ -314,16 +354,14 @@ export function InvoiceForm({
                       <PlusIcon />
                     </button>
                     <span className="flex-1" />
-                    {isOwner && l.serviceId && (
-                      <button
-                        type="button"
-                        onClick={() => setModal({ kind: "edit", line: l })}
-                        aria-label={tr("editTitle")}
-                        className="flex h-10 w-10 items-center justify-center rounded-full text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
-                      >
-                        <PencilIcon className="h-4 w-4" />
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => setModal({ kind: "edit", line: l })}
+                      className="flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800"
+                    >
+                      <PencilIcon className="h-4 w-4" />
+                      {tr("changeCharge")}
+                    </button>
                     <button
                       type="button"
                       onClick={() => setLines((current) => current.filter((x) => x.key !== l.key))}
@@ -349,10 +387,77 @@ export function InvoiceForm({
               <span>{tr("charge")}</span>
               <span>{formatINR(chargeTotal)}</span>
             </div>
+            {!belowGovt && extra > 0 && (
+              <div className="flex justify-between text-sm font-medium text-emerald-700">
+                <span>{tr("extra")}</span>
+                <span>+{formatINR(extra)}</span>
+              </div>
+            )}
+            {!belowGovt && discount > 0 && (
+              <div className="flex justify-between text-sm font-medium text-amber-700">
+                <span>{tr("discount")}</span>
+                <span>−{formatINR(discount)}</span>
+              </div>
+            )}
             <div className="mt-1 flex items-baseline justify-between">
               <span className="text-lg font-semibold text-zinc-900">{tr("total")}</span>
               <span className="text-3xl font-extrabold text-zinc-900">{formatINR(grandTotal)}</span>
             </div>
+
+            {lines.length > 0 &&
+              (finalOpen ? (
+                <div className="mt-3 space-y-2 rounded-xl bg-zinc-50 p-3">
+                  <label className="block text-sm font-medium text-zinc-600">
+                    {tr("customerPaysLabel")}
+                    <span className="relative mt-1 block">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-lg text-zinc-400">₹</span>
+                      <input
+                        autoFocus
+                        value={finalInput}
+                        onChange={(e) => setFinalInput(e.target.value)}
+                        inputMode="decimal"
+                        placeholder={String(linesTotal)}
+                        className="w-full rounded-xl border-2 border-zinc-300 bg-white py-3 pl-8 pr-3 text-xl font-semibold outline-none focus:border-brand-500"
+                      />
+                    </span>
+                  </label>
+                  {belowGovt && (
+                    <p className="text-sm font-medium text-red-600">
+                      {tr("belowGovt", { amount: formatINR(govtTotal) })}
+                    </p>
+                  )}
+                  {!belowGovt && discount > 0 && (
+                    <input
+                      value={adjustmentReason}
+                      onChange={(e) => setAdjustmentReason(e.target.value)}
+                      placeholder={tr("discountReason")}
+                      className={clsx(
+                        "w-full rounded-xl border bg-white px-4 py-3 text-base",
+                        needsAdjustmentReason ? "border-amber-400" : "border-zinc-300",
+                      )}
+                    />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFinalOpen(false);
+                      setFinalInput("");
+                      setAdjustmentReason("");
+                    }}
+                    className="text-sm text-zinc-500 hover:underline"
+                  >
+                    {tr("removeAdjust")}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setFinalOpen(true)}
+                  className="mt-3 text-sm font-medium text-brand-700 hover:underline"
+                >
+                  {tr("customerPaysDifferent")}
+                </button>
+              ))}
           </div>
 
           {/* Customer */}
@@ -436,6 +541,19 @@ export function InvoiceForm({
                         {change >= 0 ? tr("returnChange") : tr("notEnough")}: {formatINR(Math.abs(change))}
                       </p>
                     )}
+                    {canKeepChange && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFinalOpen(true);
+                          setFinalInput(String(cashGivenAmount));
+                          setAdjustmentReason("");
+                        }}
+                        className="mt-2 min-h-11 w-full rounded-xl border-2 border-emerald-300 bg-white px-4 text-base font-semibold text-emerald-800 hover:bg-emerald-50"
+                      >
+                        {tr("keepExtra", { amount: formatINR(change) })}
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <input
@@ -474,7 +592,7 @@ export function InvoiceForm({
             {state.error && <p className="mb-3 rounded-xl bg-red-50 p-3 text-sm text-red-700">{state.error}</p>}
             <button
               type="submit"
-              disabled={pending || lines.length === 0 || phoneError}
+              disabled={pending || lines.length === 0 || phoneError || belowGovt || needsAdjustmentReason}
               className="min-h-14 w-full rounded-xl bg-emerald-600 px-4 text-lg font-bold text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-zinc-300"
             >
               {pending ? tr("saving") : `${tr("save")} · ${formatINR(grandTotal)}`}
@@ -505,6 +623,7 @@ export function InvoiceForm({
           onClose={() => setModal(null)}
           onAdd={(govt) => {
             const svc = modal.service;
+            const standard = serviceChargeFor(svc, govt, slabs);
             setLines((current) => [
               ...current,
               {
@@ -514,7 +633,8 @@ export function InvoiceForm({
                 name_ml: svc.name_ml,
                 qty: 1,
                 govtFee: govt,
-                serviceCharge: serviceChargeFor(svc, govt, slabs),
+                serviceCharge: standard,
+                standardCharge: standard,
                 overrideReason: "",
               },
             ]);
@@ -538,6 +658,7 @@ export function InvoiceForm({
                 qty: 1,
                 govtFee: govt,
                 serviceCharge: charge,
+                standardCharge: null,
                 overrideReason: "",
               },
             ]);
@@ -549,6 +670,7 @@ export function InvoiceForm({
       {modal?.kind === "edit" && (
         <EditModal
           line={modal.line}
+          canEditGovt={isOwner || modal.line.serviceId === null}
           tr={tr}
           onClose={() => setModal(null)}
           onSave={(govt, charge, reason) => {
@@ -732,11 +854,13 @@ function OtherItemModal({
 
 function EditModal({
   line,
+  canEditGovt,
   tr,
   onClose,
   onSave,
 }: {
   line: Line;
+  canEditGovt: boolean;
   tr: Tr;
   onClose: () => void;
   onSave: (govt: number, charge: number, reason: string) => void;
@@ -744,6 +868,9 @@ function EditModal({
   const [govt, setGovt] = useState(String(line.govtFee));
   const [charge, setCharge] = useState(String(line.serviceCharge));
   const [reason, setReason] = useState(line.overrideReason);
+  const newCharge = toAmount(charge);
+  const isDiscount = line.standardCharge !== null && newCharge < line.standardCharge;
+  const valid = charge.trim() !== "" && (!isDiscount || reason.trim() !== "");
 
   return (
     <ModalShell title={tr("editTitle")} onClose={onClose}>
@@ -751,36 +878,53 @@ function EditModal({
         className="space-y-3"
         onSubmit={(e) => {
           e.preventDefault();
-          if (reason.trim()) onSave(toAmount(govt), toAmount(charge), reason.trim());
+          if (valid) onSave(toAmount(govt), newCharge, isDiscount ? reason.trim() : "");
         }}
       >
         <p className="font-semibold text-zinc-900">{line.name_en}</p>
-        <label className="block text-sm text-zinc-600">
-          {tr("govt")}
-          <input
-            value={govt}
-            onChange={(e) => setGovt(e.target.value)}
-            inputMode="decimal"
-            className="mt-1 w-full rounded-xl border-2 border-zinc-300 px-4 py-3 text-lg"
-          />
-        </label>
+        {line.standardCharge !== null && (
+          <p className="text-sm text-zinc-500">{tr("usualCharge", { amount: formatINR(line.standardCharge) })}</p>
+        )}
         <label className="block text-sm text-zinc-600">
           {tr("charge")}
-          <input
-            value={charge}
-            onChange={(e) => setCharge(e.target.value)}
-            inputMode="decimal"
-            className="mt-1 w-full rounded-xl border-2 border-zinc-300 px-4 py-3 text-lg"
-          />
+          <span className="relative mt-1 block">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl text-zinc-400">₹</span>
+            <input
+              autoFocus
+              value={charge}
+              onChange={(e) => setCharge(e.target.value)}
+              inputMode="decimal"
+              className={`${bigInput} pl-10`}
+            />
+          </span>
         </label>
-        <input
-          autoFocus
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          placeholder={tr("reason")}
-          className="w-full rounded-xl border-2 border-zinc-300 px-4 py-3 text-lg"
-        />
-        <ModalButtons tr={tr} onClose={onClose} submitLabel={tr("save2")} disabled={!reason.trim()} />
+        {line.standardCharge !== null && newCharge !== line.standardCharge && charge.trim() !== "" && (
+          <p className={clsx("text-sm font-semibold", isDiscount ? "text-amber-700" : "text-emerald-700")}>
+            {isDiscount
+              ? `${tr("discount")} ${formatINR(line.standardCharge - newCharge)}`
+              : `${tr("extra")} +${formatINR(newCharge - line.standardCharge)}`}
+          </p>
+        )}
+        {isDiscount && (
+          <input
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder={tr("discountReason")}
+            className="w-full rounded-xl border-2 border-amber-300 px-4 py-3 text-base"
+          />
+        )}
+        {canEditGovt && (
+          <label className="block text-sm text-zinc-600">
+            {tr("govtEdit")}
+            <input
+              value={govt}
+              onChange={(e) => setGovt(e.target.value)}
+              inputMode="decimal"
+              className="mt-1 w-full rounded-xl border-2 border-zinc-300 px-4 py-3 text-lg"
+            />
+          </label>
+        )}
+        <ModalButtons tr={tr} onClose={onClose} submitLabel={tr("save2")} disabled={!valid} />
       </form>
     </ModalShell>
   );

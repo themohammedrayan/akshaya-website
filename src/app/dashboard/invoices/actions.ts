@@ -21,6 +21,10 @@ const invoiceSchema = z.object({
     .refine((v) => v === "" || isValidIndianPhone(v), "Enter a valid 10-digit phone number, or leave it blank"),
   requestId: z.string().uuid().nullable(),
   notes: z.string().trim().max(500),
+  // Bill-level adjustment of the service charge (never the govt fees).
+  extra: money,
+  discount: money,
+  adjustmentReason: z.string().trim().max(200),
   items: z
     .array(
       z.object({
@@ -65,6 +69,9 @@ export async function createInvoice(_prev: InvoiceFormState, formData: FormData)
       customer_phone: input.customerPhone,
       request_id: input.requestId,
       notes: input.notes,
+      extra: input.extra,
+      discount: input.discount,
+      adjustment_reason: input.adjustmentReason,
       items: input.items.map((item) => ({
         service_id: item.serviceId,
         description: item.description,

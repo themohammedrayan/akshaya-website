@@ -30,7 +30,7 @@ export default async function InvoicePrintPage({
   const { data: invoice } = await supabase
     .from("invoices")
     .select(
-      "invoice_no, created_at, customer_name, customer_phone, status, notes, govt_total, service_total, grand_total, paid_total, items:invoice_items(id, description, qty, govt_fee, service_charge, line_total, sort_order), payments:invoice_payments(mode, reference)",
+      "invoice_no, created_at, customer_name, customer_phone, status, notes, govt_total, service_total, grand_total, paid_total, extra_amount, discount_amount, items:invoice_items(id, description, qty, govt_fee, service_charge, line_total, sort_order), payments:invoice_payments(mode, reference)",
     )
     .eq("id", id)
     .maybeSingle();

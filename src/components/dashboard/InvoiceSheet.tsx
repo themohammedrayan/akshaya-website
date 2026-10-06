@@ -12,6 +12,8 @@ export type PrintableInvoice = {
   service_total: number;
   grand_total: number | null;
   paid_total: number;
+  extra_amount: number;
+  discount_amount: number;
   items: {
     id: string;
     description: string;
@@ -39,6 +41,17 @@ export function InvoiceSheet({ invoice }: { invoice: PrintableInvoice }) {
   const refs = invoice.payments.map((p) => p.reference).filter(Boolean).join(", ");
   const cancelled = invoice.status === "cancelled";
   const hasGovtFees = Number(invoice.govt_total) > 0;
+  const extra = Number(invoice.extra_amount);
+  const discount = Number(invoice.discount_amount);
+
+  // Line totals. A bill-level extra (customer left the change) is not shown as
+  // its own line - it's folded into the last line's service charge so the
+  // lines still add up. A discount is shown to the customer as its own row.
+  const rows = items.map((item, i) => {
+    const charge = item.qty * Number(item.service_charge) + (i === items.length - 1 ? extra : 0);
+    const govt = item.qty * Number(item.govt_fee);
+    return { ...item, govt, charge, total: govt + charge };
+  });
 
   return (
     <div className="overflow-x-auto print:overflow-visible">
@@ -93,14 +106,14 @@ export function InvoiceSheet({ invoice }: { invoice: PrintableInvoice }) {
             </tr>
           </thead>
           <tbody>
-            {items.map((item, i) => (
-              <tr key={item.id} className="border-b border-zinc-300">
+            {rows.map((row, i) => (
+              <tr key={row.id} className="border-b border-zinc-300">
                 <td className="py-1 pr-2">{i + 1}</td>
-                <td className="py-1 pr-2">{item.description}</td>
-                <td className="py-1 pr-2 text-right">{item.qty}</td>
-                {hasGovtFees && <td className="py-1 pr-2 text-right">{amount(item.govt_fee)}</td>}
-                <td className="py-1 pr-2 text-right">{amount(item.service_charge)}</td>
-                <td className="py-1 text-right">{amount(item.line_total)}</td>
+                <td className="py-1 pr-2">{row.description}</td>
+                <td className="py-1 pr-2 text-right">{row.qty}</td>
+                {hasGovtFees && <td className="py-1 pr-2 text-right">{amount(row.govt)}</td>}
+                <td className="py-1 pr-2 text-right">{amount(row.charge)}</td>
+                <td className="py-1 text-right">{amount(row.total)}</td>
               </tr>
             ))}
           </tbody>
@@ -130,8 +143,14 @@ export function InvoiceSheet({ invoice }: { invoice: PrintableInvoice }) {
               )}
               <tr>
                 <td className="pr-4">Service charge</td>
-                <td className="text-right">{formatINR(invoice.service_total)}</td>
+                <td className="text-right">{formatINR(Number(invoice.service_total) + discount)}</td>
               </tr>
+              {discount > 0 && (
+                <tr>
+                  <td className="pr-4">Discount</td>
+                  <td className="text-right">−{formatINR(discount)}</td>
+                </tr>
+              )}
               <tr className="border-t border-black text-sm font-bold">
                 <td className="pr-4">Total</td>
                 <td className="text-right">{formatINR(invoice.grand_total)}</td>
