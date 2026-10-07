@@ -79,6 +79,78 @@ function MoneyInput({ label, hint, value, onChange, autoFocus }: {
   );
 }
 
+// ₹10 and ₹20 cover both notes and coins of that value.
+const DENOMINATIONS = [500, 200, 100, 50, 20, 10, 5, 2, 1];
+const COIN_ONLY = new Set([5, 2, 1]);
+
+// Cash field with an optional note-by-note counter; the counter writes its total into the field.
+function CashInput({ label, hint, value, onChange, tr }: {
+  label: string;
+  hint?: string;
+  value: string;
+  onChange: (v: string) => void;
+  tr: Tr;
+}) {
+  const [byNotes, setByNotes] = useState(false);
+  const [pieces, setPieces] = useState<Record<number, string>>({});
+
+  function setPiece(denom: number, raw: string) {
+    const next = { ...pieces, [denom]: raw.replace(/\D/g, "") };
+    setPieces(next);
+    onChange(String(DENOMINATIONS.reduce((s, d) => s + d * Number(next[d] || 0), 0)));
+  }
+
+  return (
+    <div>
+      {byNotes ? (
+        <div className="block">
+          <span className="text-base font-semibold text-zinc-800">{label}</span>
+          {hint && <span className="block text-sm text-zinc-500">{hint}</span>}
+          <div className="mt-2 space-y-2 rounded-2xl border-2 border-zinc-200 p-3">
+            {DENOMINATIONS.map((d) => (
+              <label key={d} className="flex items-center gap-3">
+                <span className="w-20 text-right text-lg font-semibold text-zinc-700">
+                  ₹{d}
+                  {COIN_ONLY.has(d) && <span className="block text-xs font-normal text-zinc-400">{tr("coins")}</span>}
+                </span>
+                <span className="text-zinc-400">×</span>
+                <input
+                  value={pieces[d] ?? ""}
+                  onChange={(e) => setPiece(d, e.target.value)}
+                  inputMode="numeric"
+                  className="w-24 rounded-xl border-2 border-zinc-300 px-3 py-2 text-lg font-semibold outline-none focus:border-brand-500"
+                />
+                <span className="flex-1 text-right text-base text-zinc-600">
+                  {formatINR(d * Number(pieces[d] || 0))}
+                </span>
+              </label>
+            ))}
+            <div className="flex items-center justify-between border-t border-zinc-200 pt-2 text-xl font-bold text-zinc-900">
+              <span>{tr("notesTotal")}</span>
+              <span>{formatINR(Number(value || 0))}</span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <MoneyInput label={label} hint={hint} value={value} onChange={onChange} />
+      )}
+      <button
+        type="button"
+        onClick={() => {
+          if (!byNotes) {
+            setPieces({});
+            onChange("");
+          }
+          setByNotes(!byNotes);
+        }}
+        className="mt-2 text-sm font-semibold text-brand-700 hover:underline"
+      >
+        {byNotes ? tr("typeTotal") : tr("countNotes")}
+      </button>
+    </div>
+  );
+}
+
 export function DayClose({
   date,
   today,
@@ -140,14 +212,24 @@ export function DayClose({
                 className="mt-1 block rounded-xl border border-zinc-300 px-3 py-2 text-base"
               />
             </label>
-            {ACCOUNTS.map((a) => (
-              <MoneyInput
-                key={a}
-                label={tr(`account.${a}`)}
-                value={counts[a]}
-                onChange={(v) => setCounts((c) => ({ ...c, [a]: v }))}
-              />
-            ))}
+            {ACCOUNTS.map((a) =>
+              a === "cash" ? (
+                <CashInput
+                  key={a}
+                  label={tr(`account.${a}`)}
+                  value={counts[a]}
+                  onChange={(v) => setCounts((c) => ({ ...c, [a]: v }))}
+                  tr={tr}
+                />
+              ) : (
+                <MoneyInput
+                  key={a}
+                  label={tr(`account.${a}`)}
+                  value={counts[a]}
+                  onChange={(v) => setCounts((c) => ({ ...c, [a]: v }))}
+                />
+              ),
+            )}
             {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
             <button
               type="button"
@@ -247,11 +329,12 @@ export function DayClose({
         <h2 className="text-xl font-bold text-zinc-900">{tr("countTitle")}</h2>
         <p className="mt-1 text-sm text-zinc-500">{tr("countHelp")}</p>
         <div className="mt-4 space-y-4">
-          <MoneyInput
+          <CashInput
             label={tr("account.cash")}
             hint={tr("cashHint")}
             value={counts.cash}
             onChange={(v) => setCounts((c) => ({ ...c, cash: v }))}
+            tr={tr}
           />
           <MoneyInput
             label={tr("account.bank")}
