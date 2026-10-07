@@ -4,7 +4,8 @@ import clsx from "clsx";
 import { getStaffProfile } from "@/lib/staff";
 import { formatDateTimeIST, formatINR } from "@/lib/billing";
 
-const ACCOUNTS = ["cash", "bank", "wallet"] as const;
+const ACCOUNTS = ["cash", "bank", "wallet", "csc"] as const;
+const LABELS = { cash: "Cash", bank: "Bank", wallet: "Akshaya wallet", csc: "CSC wallet" };
 
 export default async function CloseHistoryPage() {
   const { supabase, profile } = await getStaffProfile();
@@ -13,7 +14,7 @@ export default async function CloseHistoryPage() {
   const { data: closings } = await supabase
     .from("day_closings")
     .select(
-      "id, close_date, is_opening, status, actual_cash, actual_bank, actual_wallet, expected_cash, expected_bank, expected_wallet, upi_pending, note, closed_at, reopened_at, closer:profiles!day_closings_closed_by_fkey(name)",
+      "id, close_date, is_opening, status, actual_cash, actual_bank, actual_wallet, actual_csc, expected_cash, expected_bank, expected_wallet, expected_csc, upi_pending, note, closed_at, reopened_at, closer:profiles!day_closings_closed_by_fkey(name)",
     )
     .order("close_date", { ascending: false })
     .order("closed_at", { ascending: false })
@@ -43,8 +44,8 @@ export default async function CloseHistoryPage() {
             <tr className="border-b border-zinc-200 text-left text-xs text-zinc-500">
               <th className="px-4 py-3 font-medium">Date</th>
               {ACCOUNTS.map((a) => (
-                <th key={a} className="px-4 py-3 text-right font-medium capitalize">
-                  {a} (actual / diff)
+                <th key={a} className="px-4 py-3 text-right font-medium">
+                  {LABELS[a]} (actual / diff)
                 </th>
               ))}
               <th className="px-4 py-3 font-medium">Closed by · note</th>
@@ -53,7 +54,7 @@ export default async function CloseHistoryPage() {
           <tbody>
             {(closings ?? []).length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-zinc-500">
+                <td colSpan={6} className="px-4 py-8 text-center text-zinc-500">
                   No closes yet.
                 </td>
               </tr>

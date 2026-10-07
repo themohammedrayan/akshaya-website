@@ -16,7 +16,7 @@ import {
 } from "@/app/dashboard/close/actions";
 import { XIcon } from "./icons";
 
-type Account = "cash" | "bank" | "wallet";
+type Account = "cash" | "bank" | "wallet" | "csc";
 type Kind = "expense" | "deposit" | "withdrawal" | "topup";
 
 export type Movement = {
@@ -30,14 +30,14 @@ export type Movement = {
   moved_at: string;
 };
 
-const KINDS: { kind: Kind; from: Account[]; to: Account | null; color: string }[] = [
-  { kind: "expense", from: ["cash", "bank", "wallet"], to: null, color: "border-red-200 bg-red-50 text-red-800" },
-  { kind: "deposit", from: ["cash"], to: "bank", color: "border-brand-200 bg-brand-50 text-brand-800" },
-  { kind: "withdrawal", from: ["cash", "bank"], to: null, color: "border-amber-200 bg-amber-50 text-amber-800" },
-  { kind: "topup", from: ["cash", "bank"], to: "wallet", color: "border-violet-200 bg-violet-50 text-violet-800" },
+const KINDS: { kind: Kind; from: Account[]; to: (Account | null)[]; color: string }[] = [
+  { kind: "expense", from: ["cash", "bank", "wallet", "csc"], to: [null], color: "border-red-200 bg-red-50 text-red-800" },
+  { kind: "deposit", from: ["cash"], to: ["bank"], color: "border-brand-200 bg-brand-50 text-brand-800" },
+  { kind: "withdrawal", from: ["cash", "bank"], to: [null], color: "border-amber-200 bg-amber-50 text-amber-800" },
+  { kind: "topup", from: ["cash", "bank"], to: ["wallet", "csc"], color: "border-violet-200 bg-violet-50 text-violet-800" },
 ];
 
-const ACCOUNTS: Account[] = ["cash", "bank", "wallet"];
+const ACCOUNTS: Account[] = ["cash", "bank", "wallet", "csc"];
 const NOTE_THRESHOLD = 10;
 const bigInput =
   "w-full rounded-2xl border-2 border-zinc-300 bg-white py-4 pl-10 pr-4 text-2xl font-semibold outline-none focus:border-brand-500";
@@ -175,7 +175,7 @@ export function DayClose({
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<CloseResult | null>(closed);
   const [modalKind, setModalKind] = useState<Kind | null>(null);
-  const [counts, setCounts] = useState<Record<Account, string>>({ cash: "", bank: "", wallet: "" });
+  const [counts, setCounts] = useState<Record<Account, string>>({ cash: "", bank: "", wallet: "", csc: "" });
   // Opening balances are "as at the end of" a day - default to yesterday so today can be closed normally.
   const [openingDate, setOpeningDate] = useState(() => minDate ?? previousDay(today));
 
@@ -236,7 +236,7 @@ export function DayClose({
               disabled={!countsValid || pending}
               onClick={() =>
                 run(() =>
-                  setOpening({ date: openingDate, cash: parsed[0], bank: parsed[1], wallet: parsed[2] }),
+                  setOpening({ date: openingDate, cash: parsed[0], bank: parsed[1], wallet: parsed[2], csc: parsed[3] }),
                 )
               }
               className="min-h-14 w-full rounded-xl bg-brand-700 text-lg font-bold text-white hover:bg-brand-800 disabled:bg-zinc-300"
@@ -348,6 +348,12 @@ export function DayClose({
             value={counts.wallet}
             onChange={(v) => setCounts((c) => ({ ...c, wallet: v }))}
           />
+          <MoneyInput
+            label={tr("account.csc")}
+            hint={tr("cscHint")}
+            value={counts.csc}
+            onChange={(v) => setCounts((c) => ({ ...c, csc: v }))}
+          />
         </div>
         {error && <p className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
         <button
@@ -356,7 +362,7 @@ export function DayClose({
           onClick={() => {
             setError(null);
             startTransition(async () => {
-              const res = await closeDay({ date, cash: parsed[0], bank: parsed[1], wallet: parsed[2] });
+              const res = await closeDay({ date, cash: parsed[0], bank: parsed[1], wallet: parsed[2], csc: parsed[3] });
               if (res.error) setError(res.error);
               else if (res.result) setResult(res.result);
             });
@@ -373,8 +379,8 @@ export function DayClose({
           tr={tr}
           pending={pending}
           onClose={() => setModalKind(null)}
-          onSave={(from, amount, note) =>
-            run(() => addMovement({ kind: modalKind, from, amount, note }), () => setModalKind(null))
+          onSave={(from, to, amount, note) =>
+            run(() => addMovement({ kind: modalKind, from, to, amount, note }), () => setModalKind(null))
           }
           error={error}
         />
@@ -398,10 +404,11 @@ function MovementModal({
   pending: boolean;
   error: string | null;
   onClose: () => void;
-  onSave: (from: Account, amount: number, note: string) => void;
+  onSave: (from: Account, to: Account | null, amount: number, note: string) => void;
 }) {
   const shape = KINDS.find((k) => k.kind === kind)!;
   const [from, setFrom] = useState<Account>(shape.from[0]);
+  const [to, setTo] = useState<Account | null>(shape.to[0]);
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const value = toAmount(amount);
@@ -415,7 +422,7 @@ function MovementModal({
         onClick={(e) => e.stopPropagation()}
         onSubmit={(e) => {
           e.preventDefault();
-          if (valid) onSave(from, value!, note.trim());
+          if (valid) onSave(from, to, value!, note.trim());
         }}
       >
         <div className="flex items-start justify-between">
@@ -426,25 +433,11 @@ function MovementModal({
         </div>
         <p className="text-sm text-zinc-500">{tr(`kindHelp.${kind}`)}</p>
         <MoneyInput label={tr("amount")} value={amount} onChange={setAmount} autoFocus />
+        {shape.to.length > 1 && (
+          <AccountPicker label={tr("toWallet")} options={shape.to as Account[]} value={to} onChange={setTo} tr={tr} />
+        )}
         {shape.from.length > 1 && (
-          <div>
-            <p className="text-sm font-medium text-zinc-600">{tr("paidFrom")}</p>
-            <div className="mt-1 flex gap-2">
-              {shape.from.map((a) => (
-                <button
-                  key={a}
-                  type="button"
-                  onClick={() => setFrom(a)}
-                  className={clsx(
-                    "min-h-11 flex-1 rounded-xl border-2 text-base font-semibold",
-                    from === a ? "border-brand-600 bg-brand-50 text-brand-800" : "border-zinc-200 text-zinc-700",
-                  )}
-                >
-                  {tr(`account.${a}`)}
-                </button>
-              ))}
-            </div>
-          </div>
+          <AccountPicker label={tr("paidFrom")} options={shape.from} value={from} onChange={setFrom} tr={tr} />
         )}
         <input
           value={note}
@@ -466,6 +459,35 @@ function MovementModal({
           </button>
         </div>
       </form>
+    </div>
+  );
+}
+
+function AccountPicker({ label, options, value, onChange, tr }: {
+  label: string;
+  options: Account[];
+  value: Account | null;
+  onChange: (a: Account) => void;
+  tr: Tr;
+}) {
+  return (
+    <div>
+      <p className="text-sm font-medium text-zinc-600">{label}</p>
+      <div className="mt-1 grid grid-cols-2 gap-2 sm:flex">
+        {options.map((a) => (
+          <button
+            key={a}
+            type="button"
+            onClick={() => onChange(a)}
+            className={clsx(
+              "min-h-11 flex-1 rounded-xl border-2 px-2 text-base font-semibold",
+              value === a ? "border-brand-600 bg-brand-50 text-brand-800" : "border-zinc-200 text-zinc-700",
+            )}
+          >
+            {tr(`account.${a}`)}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -540,6 +562,7 @@ function ResultView({
           <li>{tr("bd.upi", { amount: formatINR(b.upi_card_settled) })}</li>
           <li>{tr("bd.govtBank", { amount: formatINR(b.govt_fees_bank) })}</li>
           <li>{tr("bd.govtWallet", { amount: formatINR(b.govt_fees_wallet) })}</li>
+          <li>{tr("bd.govtCsc", { amount: formatINR(b.govt_fees_csc ?? 0) })}</li>
           <li>
             {tr("kind.expense")} {formatINR(b.movements.expense)} · {tr("kind.deposit")} {formatINR(b.movements.deposit)} ·{" "}
             {tr("kind.withdrawal")} {formatINR(b.movements.withdrawal)} · {tr("kind.topup")} {formatINR(b.movements.topup)}

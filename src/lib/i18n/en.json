@@ -228,7 +228,8 @@
       "account": {
         "cash": "Cash in drawer",
         "bank": "Bank balance",
-        "wallet": "Wallet balance"
+        "wallet": "Akshaya wallet",
+        "csc": "CSC wallet"
       },
       "step1": "Step 1",
       "moneyInOut": "Money in / out (not bills)",
@@ -243,7 +244,7 @@
         "expense": "Paper, ink, tea, electricity, rent…",
         "deposit": "Cash taken from the drawer and deposited in the bank.",
         "withdrawal": "Money the owner took out for personal use.",
-        "topup": "Recharge of the Akshaya / portal wallet."
+        "topup": "Recharge of the Akshaya portal wallet or the CSC wallet."
       },
       "noMovements": "Nothing recorded yet.",
       "entriesTotal": "{count} entries · {amount}",
@@ -257,14 +258,16 @@
       "save": "Save",
       "step2": "Step 2",
       "countTitle": "Count & enter balances",
-      "countHelp": "Count the cash and check the bank app and wallet. The expected amounts are shown only after you save.",
+      "countHelp": "Count the cash and check the bank app and both wallets. The expected amounts are shown only after you save.",
       "cashHint": "Count all notes and coins in the drawer",
       "bankHint": "What the bank app shows now. Don't add today's GPay / UPI — it settles tomorrow and is added automatically.",
       "countNotes": "Count by notes",
       "typeTotal": "Type total instead",
       "notesTotal": "Total",
       "coins": "coin",
-      "walletHint": "From the Akshaya / portal wallet",
+      "walletHint": "From the Akshaya / e-District portal wallet",
+      "cscHint": "From the CSC Digital Seva wallet",
+      "toWallet": "Which wallet",
       "closeButton": "Close day {date}",
       "closing": "Saving…",
       "step3": "Day closed",
@@ -279,7 +282,8 @@
         "cash": "Cash received on bills: {amount}",
         "upi": "UPI / card settled into bank: {amount}",
         "govtBank": "Govt fees paid from bank: {amount}",
-        "govtWallet": "Govt fees paid from wallet: {amount}"
+        "govtWallet": "Govt fees paid from Akshaya wallet: {amount}",
+        "govtCsc": "Govt fees paid from CSC wallet: {amount}"
       },
       "noteRequired": "There is a difference of more than ₹10 — write what happened (required)",
       "noteOptional": "Note (optional)",

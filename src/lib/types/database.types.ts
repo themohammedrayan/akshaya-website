@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           actual_bank: number
           actual_cash: number
+          actual_csc: number
           actual_wallet: number
           breakdown: Json
           close_date: string
@@ -25,6 +26,7 @@ export type Database = {
           closed_by: string | null
           expected_bank: number
           expected_cash: number
+          expected_csc: number
           expected_wallet: number
           id: string
           is_opening: boolean
@@ -37,6 +39,7 @@ export type Database = {
         Insert: {
           actual_bank: number
           actual_cash: number
+          actual_csc?: number
           actual_wallet: number
           breakdown?: Json
           close_date: string
@@ -44,6 +47,7 @@ export type Database = {
           closed_by?: string | null
           expected_bank: number
           expected_cash: number
+          expected_csc?: number
           expected_wallet: number
           id?: string
           is_opening?: boolean
@@ -56,6 +60,7 @@ export type Database = {
         Update: {
           actual_bank?: number
           actual_cash?: number
+          actual_csc?: number
           actual_wallet?: number
           breakdown?: Json
           close_date?: string
@@ -63,6 +68,7 @@ export type Database = {
           closed_by?: string | null
           expected_bank?: number
           expected_cash?: number
+          expected_csc?: number
           expected_wallet?: number
           id?: string
           is_opening?: boolean
@@ -661,7 +667,13 @@ export type Database = {
         Returns: undefined
       }
       close_day: {
-        Args: { p_bank: number; p_cash: number; p_date: string; p_wallet: number }
+        Args: {
+          p_bank: number
+          p_cash: number
+          p_csc: number
+          p_date: string
+          p_wallet: number
+        }
         Returns: Json
       }
       create_invoice: { Args: { p_invoice: Json }; Returns: string }
@@ -705,7 +717,13 @@ export type Database = {
         Returns: undefined
       }
       set_opening_balances: {
-        Args: { p_bank: number; p_cash: number; p_date: string; p_wallet: number }
+        Args: {
+          p_bank: number
+          p_cash: number
+          p_csc: number
+          p_date: string
+          p_wallet: number
+        }
         Returns: undefined
       }
       submit_request: {

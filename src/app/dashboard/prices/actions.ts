@@ -23,7 +23,7 @@ const pricingSchema = z.object({
   defaultGovtFee: money,
   defaultServiceCharge: money,
   variableGovtFee: z.boolean(),
-  govtPaidFrom: z.enum(["bank", "wallet"]),
+  govtPaidFrom: z.enum(["bank", "wallet", "csc"]),
   showOnWebsite: z.boolean(),
   active: z.boolean(),
 });

@@ -12,7 +12,7 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from("day_closings")
-    .select("close_date, is_opening, status, actual_cash, expected_cash, actual_bank, expected_bank, actual_wallet, expected_wallet, upi_pending, note, closed_at")
+    .select("close_date, is_opening, status, actual_cash, expected_cash, actual_bank, expected_bank, actual_wallet, expected_wallet, actual_csc, expected_csc, upi_pending, note, closed_at")
     .order("close_date");
   if (error) return new Response(error.message, { status: 500 });
 
@@ -20,7 +20,8 @@ export async function GET() {
     "Date", "Opening", "Status",
     "Cash actual", "Cash expected", "Cash diff",
     "Bank actual", "Bank expected", "Bank diff",
-    "Wallet actual", "Wallet expected", "Wallet diff",
+    "Akshaya wallet actual", "Akshaya wallet expected", "Akshaya wallet diff",
+    "CSC wallet actual", "CSC wallet expected", "CSC wallet diff",
     "UPI/card arriving next day", "Note", "Closed at",
   ];
   const rows = (data ?? []).map((c) => [
@@ -28,6 +29,7 @@ export async function GET() {
     c.actual_cash, c.expected_cash, (Number(c.actual_cash) - Number(c.expected_cash)).toFixed(2),
     c.actual_bank, c.expected_bank, (Number(c.actual_bank) - Number(c.expected_bank)).toFixed(2),
     c.actual_wallet, c.expected_wallet, (Number(c.actual_wallet) - Number(c.expected_wallet)).toFixed(2),
+    c.actual_csc, c.expected_csc, (Number(c.actual_csc) - Number(c.expected_csc)).toFixed(2),
     c.upi_pending, c.note, c.closed_at,
   ]);
   const csv = [header, ...rows].map((r) => r.map(csvCell).join(",")).join("\r\n");
