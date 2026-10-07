@@ -5,6 +5,7 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
 import { LogoutIcon } from "@/components/dashboard/icons";
 import { getServerTranslation } from "@/lib/i18n/server";
+import { todayIST } from "@/lib/billing";
 import { signOut } from "./actions";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -42,6 +43,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const { t } = await getServerTranslation();
 
+  const { count: followUpCount } = await supabase
+    .from("enquiries")
+    .select("id", { count: "exact", head: true })
+    .or(`status.eq.new,and(status.eq.follow_up,follow_up_on.lte.${todayIST()})`);
+
   return (
     <div className="flex min-h-screen flex-col bg-zinc-100 print:bg-white">
       <header className="border-b border-zinc-200 bg-white print:hidden">
@@ -73,7 +79,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             </div>
           </div>
           <div className="mt-3">
-            <DashboardNav isOwner={profile.role === "owner"} />
+            <DashboardNav isOwner={profile.role === "owner"} followUpCount={followUpCount ?? 0} />
           </div>
         </div>
       </header>

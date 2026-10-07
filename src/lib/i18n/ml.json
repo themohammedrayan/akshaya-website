@@ -124,7 +124,8 @@
       "printedForms": "പ്രിന്റ് ചെയ്ത ഫോമുകൾ",
       "logout": "ലോഗ് ഔട്ട്",
       "dayClose": "ദിവസം ക്ലോസ്",
-      "analytics": "വിശകലനം"
+      "analytics": "വിശകലനം",
+      "followups": "ഫോളോ-അപ്പ്"
     },
     "newBill": {
       "search": "സേവനം തിരയുക…",
@@ -292,5 +293,40 @@
       "billedInfo": "ഈ ദിവസങ്ങളിൽ രേഖപ്പെടുത്തിയ ബില്ലുകൾ: {amount} (അറിവിന് മാത്രം — എല്ലാ പണവും ബിൽ ചെയ്തിട്ടുണ്ടാകണമെന്നില്ല).",
       "analytics": "വിശകലനം"
     }
+  },
+  "followups": {
+    "title": "വാട്ട്‌സ്ആപ്പ് ഫോളോ-അപ്പ്",
+    "subtitle": "തിരിച്ചു വിളിക്കാൻ ആവശ്യപ്പെട്ടവരും വാട്ട്‌സ്ആപ്പ് ബോട്ടിലേക്ക് സന്ദേശം അയച്ചവരും.",
+    "tabNew": "പുതിയത്",
+    "tabToday": "ഇന്ന്",
+    "tabOverdue": "വൈകിയത്",
+    "tabUpcoming": "പിന്നീട്",
+    "tabAll": "എല്ലാം",
+    "empty": "ഒന്നുമില്ല.",
+    "call": "വിളിക്കുക",
+    "whatsapp": "വാട്ട്‌സ്ആപ്പ്",
+    "kindCallback": "വിളിക്കാൻ ആവശ്യപ്പെട്ടു",
+    "kindMessage": "സന്ദേശം അയച്ചു",
+    "noService": "സേവനം തിരഞ്ഞെടുത്തിട്ടില്ല",
+    "messages": "{count} സന്ദേശങ്ങൾ",
+    "firstContact": "ആദ്യം",
+    "lastContact": "അവസാനം",
+    "followUpOn": "{date}-ന് വിളിക്കണം",
+    "note": "കുറിപ്പ് (ഐച്ഛികം)",
+    "callAgainOn": "വീണ്ടും വിളിക്കേണ്ട തീയതി",
+    "outcomeTalked": "സംസാരിച്ചു",
+    "outcomeNoAnswer": "എടുത്തില്ല",
+    "outcomeCallAgain": "വീണ്ടും വിളിക്കണം",
+    "outcomeVisited": "സെന്ററിൽ വന്നു",
+    "outcomeNotInterested": "താൽപ്പര്യമില്ല",
+    "history": "വിളിച്ച ചരിത്രം",
+    "statusNew": "പുതിയത്",
+    "statusFollowUp": "ഫോളോ-അപ്പ്",
+    "statusVisited": "വന്നു",
+    "statusClosed": "അടച്ചു",
+    "filterDate": "തീയതി",
+    "filter": "ഫിൽട്ടർ",
+    "clear": "മായ്ക്കുക",
+    "saved": "സേവ് ചെയ്തു"
   }
 }

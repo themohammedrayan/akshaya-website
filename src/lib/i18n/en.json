@@ -124,7 +124,8 @@
       "printedForms": "Printed forms",
       "logout": "Log out",
       "dayClose": "Day close",
-      "analytics": "Analytics"
+      "analytics": "Analytics",
+      "followups": "Follow-ups"
     },
     "newBill": {
       "search": "Search service…",
@@ -292,5 +293,40 @@
       "billedInfo": "Bills recorded over these days: {amount} (for info only — not every payment may be billed).",
       "analytics": "Analytics"
     }
+  },
+  "followups": {
+    "title": "WhatsApp follow-ups",
+    "subtitle": "Customers who asked for a call back or messaged the WhatsApp bot.",
+    "tabNew": "New",
+    "tabToday": "Today",
+    "tabOverdue": "Overdue",
+    "tabUpcoming": "Later",
+    "tabAll": "All",
+    "empty": "Nothing here.",
+    "call": "Call",
+    "whatsapp": "WhatsApp",
+    "kindCallback": "Asked for a call",
+    "kindMessage": "Sent a message",
+    "noService": "No service chosen",
+    "messages": "{count} messages",
+    "firstContact": "First contact",
+    "lastContact": "Last contact",
+    "followUpOn": "Call on {date}",
+    "note": "Note (optional)",
+    "callAgainOn": "Call again on",
+    "outcomeTalked": "Talked",
+    "outcomeNoAnswer": "No answer",
+    "outcomeCallAgain": "Call again",
+    "outcomeVisited": "Came in",
+    "outcomeNotInterested": "Not interested",
+    "history": "Call history",
+    "statusNew": "New",
+    "statusFollowUp": "Follow-up",
+    "statusVisited": "Came in",
+    "statusClosed": "Closed",
+    "filterDate": "Date",
+    "filter": "Filter",
+    "clear": "Clear",
+    "saved": "Saved"
   }
 }
