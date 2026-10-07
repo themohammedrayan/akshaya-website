@@ -108,7 +108,8 @@
     "hoursLabel": "Hours",
     "addressLabel": "Address",
     "phoneLabel": "Phone",
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "privacy": "Privacy policy"
   },
   "language": {
     "english": "English",
@@ -328,5 +329,22 @@
     "filter": "Filter",
     "clear": "Clear",
     "saved": "Saved"
+  },
+  "privacy": {
+    "title": "Privacy policy",
+    "updated": "Last updated: 8 October 2026",
+    "intro": "This policy explains what information Akshaya e-Centre MPM 353 (Thelakkad, Malappuram) collects through this website and our WhatsApp number, why, and how you can ask us to remove it.",
+    "collectTitle": "What we collect",
+    "collectBody": "• Website requests: your name, phone number, the service you chose and any documents you upload.\n• WhatsApp: your WhatsApp number and profile name, the options you tap and any messages, voice notes or photos you send us.\n• Staff notes about our calls to you (date, outcome, short note).",
+    "useTitle": "Why we use it",
+    "useBody": "Only to provide the service you asked for: to tell you which documents are needed, to call you back, and to process your application. We do not sell your information or use it for advertising, and we do not send promotional messages.",
+    "shareTitle": "Who can see it",
+    "shareBody": "Only staff of this centre. The data is stored securely with our hosting providers (Supabase and Vercel). WhatsApp messages are delivered through Meta's WhatsApp Business Platform, under Meta's own privacy policy. When an application needs it, your details are submitted to the relevant government portal (e-District, UIDAI and similar).",
+    "keepTitle": "How long we keep it",
+    "keepBody": "Call-back records and messages are kept while we are helping you and for a reasonable time afterwards for our records. Uploaded documents are kept only as long as needed to complete your request.",
+    "rightsTitle": "Your choices",
+    "rightsBody": "You can ask us to show, correct or delete your information at any time by calling or visiting the centre, or by sending us a WhatsApp message. You can stop using the WhatsApp service at any time by simply not messaging us.",
+    "contactTitle": "Contact",
+    "contactBody": "Akshaya e-Centre MPM 353, Thelakkad, Thelakkad Post, Malappuram District - 679325. Phone: {phone}"
   }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export function Footer() {
@@ -44,7 +45,10 @@ export function Footer() {
           )}
         </dl>
         <p className="mt-6 text-xs text-zinc-400">
-          &copy; {new Date().getFullYear()} Akshaya e-Center. {t("footer.rights")}
+          &copy; {new Date().getFullYear()} Akshaya e-Center. {t("footer.rights")} ·{" "}
+          <Link href="/privacy" className="hover:text-brand-700">
+            {t("footer.privacy")}
+          </Link>
         </p>
       </div>
     </footer>

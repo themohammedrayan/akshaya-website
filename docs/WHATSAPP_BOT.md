@@ -65,14 +65,29 @@ charge for. No message templates are used. Running cost ≈ ₹0 (plus the SIM).
    - `WHATSAPP_APP_SECRET` - from step 5
    - `WHATSAPP_VERIFY_TOKEN` - any long random string you make up
    - `SUPABASE_SERVICE_ROLE_KEY` - Supabase → Settings → API → `service_role` (secret!)
-7. **Database** - apply `supabase/migrations/20261009000029_whatsapp_followups.sql`.
+7. **Database** - `20261009000029_whatsapp_followups.sql` (already applied to the live project on 8 Oct 2026).
 8. **Webhook** - WhatsApp → *Configuration* → Callback URL
-   `https://<your-domain>/api/whatsapp`, Verify token = `WHATSAPP_VERIFY_TOKEN` → *Verify and
-   save*, then subscribe to the **messages** field.
-9. **Test** - send "hi" to the number from a phone, walk the menu, tap എന്നെ വിളിക്കൂ, and check
-   Dashboard → Follow-ups → New.
-10. **Business verification** - until Meta verifies the business the number has low limits;
-    that's fine for replies, but submit verification (Business settings → *Security centre*).
+   `https://akshayatlkd.rivlo.live/api/whatsapp`, Verify token = `WHATSAPP_VERIFY_TOKEN` →
+   *Verify and save*, then subscribe to the **messages** field. (Needs steps 6-7 done and the
+   code deployed first, or verification fails.)
+9. **Privacy policy + publish** - App settings → *Basic* → Privacy policy URL
+   `https://akshayatlkd.rivlo.live/privacy` → save → **Publish** the app. Until it is
+   published, Meta only sends dashboard test webhooks, not real customer messages.
+10. **Test** - send "hi" to the number from a phone, walk the menu, tap എന്നെ വിളിക്കൂ, and check
+    Dashboard → Follow-ups → New.
+11. **Business verification** - if the WhatsApp account shows as restricted, upload the business
+    certificate in Business Support Home (business.facebook.com/business-support-home) and
+    request review. Don't create extra portfolios/accounts to get around it.
+
+Changing the domain later only means updating the Callback URL (step 8) and the Privacy policy
+URL (step 9) - nothing in the code is tied to the domain.
+
+### Old bot (July 2026)
+
+An earlier attempt lives only in Supabase: Edge Function `whatsapp-bot` (publicly callable) and an
+empty table `conversation_state`. It is not used by anything here. Delete the function in
+Supabase → Edge Functions, and drop the table (`drop table public.conversation_state;`) when
+convenient.
 
 ## How it works (code)
 
