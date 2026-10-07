@@ -25,7 +25,7 @@ export default async function DayClosePage({
   const date = isValidDate(params.date) && params.date <= today ? params.date : today;
 
   const { data: statusData } = await supabase.rpc("day_close_status");
-  const status = statusData as { has_opening: boolean; last_close_date: string | null } | null;
+  const status = statusData as { has_opening: boolean; last_close_date: string | null; upi_billed_today: number } | null;
   const lastClose = status?.last_close_date ?? null;
 
   const [{ data: closed }, { data: movements }] = await Promise.all([
@@ -77,6 +77,7 @@ export default async function DayClosePage({
         isOwner={isOwner}
         movements={(movements ?? []) as Movement[]}
         closed={(closed as CloseResult | null) ?? null}
+        upiBilledToday={date === today ? Number(status?.upi_billed_today ?? 0) : 0}
       />
     </div>
   );

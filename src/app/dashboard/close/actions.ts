@@ -12,17 +12,14 @@ type Balances = { cash: number; bank: number; wallet: number; csc: number };
 export type CloseResult = {
   close_date: string;
   actual: Balances;
-  expected: Balances;
-  difference: Balances;
   upi_pending: number;
-  breakdown: {
-    cash_received: number;
-    upi_card_settled: number;
-    govt_fees_bank: number;
-    govt_fees_wallet: number;
-    govt_fees_csc: number;
-    movements: { expense: number; deposit: number; withdrawal: number; topup: number };
-  };
+  previous: Balances & { date: string; upi_pending: number };
+  movements: { expense: number; deposit: number; withdrawal: number; topup: number };
+  takings: number;
+  expenses: number;
+  owner_took: number;
+  net: number;
+  billed: number;
   note: string | null;
 };
 
@@ -81,13 +78,20 @@ export async function cancelMovement(id: string, reason: string): Promise<Action
   return { error: null };
 }
 
-const balancesSchema = z.object({ date: z.string(), cash: money, bank: money, wallet: money, csc: money });
+const balancesSchema = z.object({
+  date: z.string(),
+  cash: money,
+  bank: money,
+  wallet: money,
+  csc: money,
+  upiPending: money,
+});
 
 export async function setOpening(input: unknown): Promise<ActionResult> {
   const { supabase, profile } = await getStaffProfile();
   if (profile?.role !== "owner") return { error: "Only the owner can set opening balances" };
   const parsed = balancesSchema.safeParse(input);
-  if (!parsed.success || !isValidDate(parsed.data.date)) return { error: "Enter all four balances" };
+  if (!parsed.success || !isValidDate(parsed.data.date)) return { error: "Enter all the balances" };
   const b = parsed.data;
   const { error } = await supabase.rpc("set_opening_balances", {
     p_date: b.date,
@@ -95,18 +99,19 @@ export async function setOpening(input: unknown): Promise<ActionResult> {
     p_bank: b.bank,
     p_wallet: b.wallet,
     p_csc: b.csc,
+    p_upi_pending: b.upiPending,
   });
   if (error) return { error: error.message };
   refresh();
   return { error: null };
 }
 
-/** Saves the counted balances first; only then are expected figures returned (blind count). */
+/** Saves the counted balances; returns what the shop made, worked out from how the balances moved. */
 export async function closeDay(input: unknown): Promise<ActionResult & { result?: CloseResult }> {
   const { supabase, profile } = await getStaffProfile();
   if (!profile) return { error: "Please sign in again." };
   const parsed = balancesSchema.safeParse(input);
-  if (!parsed.success || !isValidDate(parsed.data.date)) return { error: "Enter all four balances" };
+  if (!parsed.success || !isValidDate(parsed.data.date)) return { error: "Enter all the balances" };
   const b = parsed.data;
   const { data, error } = await supabase.rpc("close_day", {
     p_date: b.date,
@@ -114,6 +119,7 @@ export async function closeDay(input: unknown): Promise<ActionResult & { result?
     p_bank: b.bank,
     p_wallet: b.wallet,
     p_csc: b.csc,
+    p_upi_pending: b.upiPending,
   });
   if (error) return { error: error.message };
   refresh();

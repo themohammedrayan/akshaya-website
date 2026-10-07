@@ -38,7 +38,6 @@ const KINDS: { kind: Kind; from: Account[]; to: (Account | null)[]; color: strin
 ];
 
 const ACCOUNTS: Account[] = ["cash", "bank", "wallet", "csc"];
-const NOTE_THRESHOLD = 10;
 const bigInput =
   "w-full rounded-2xl border-2 border-zinc-300 bg-white py-4 pl-10 pr-4 text-2xl font-semibold outline-none focus:border-brand-500";
 
@@ -159,6 +158,7 @@ export function DayClose({
   isOwner,
   movements,
   closed,
+  upiBilledToday,
 }: {
   date: string;
   today: string;
@@ -167,6 +167,7 @@ export function DayClose({
   isOwner: boolean;
   movements: Movement[];
   closed: CloseResult | null;
+  upiBilledToday: number;
 }) {
   const { t } = useTranslation();
   const tr = (key: string, vars?: Record<string, string | number>) => t(`billing.close.${key}`, vars);
@@ -179,8 +180,20 @@ export function DayClose({
   // Opening balances are "as at the end of" a day - default to yesterday so today can be closed normally.
   const [openingDate, setOpeningDate] = useState(() => minDate ?? previousDay(today));
 
+  const [upiPending, setUpiPending] = useState("");
+
   const parsed = ACCOUNTS.map((a) => toAmount(counts[a]));
-  const countsValid = parsed.every((v) => v !== null);
+  const upiParsed = toAmount(upiPending);
+  const countsValid = parsed.every((v) => v !== null) && upiParsed !== null;
+  const balances = { cash: parsed[0], bank: parsed[1], wallet: parsed[2], csc: parsed[3], upiPending: upiParsed };
+  const upiInput = (
+    <MoneyInput
+      label={tr("upiPending")}
+      hint={upiBilledToday > 0 ? tr("upiPendingBilled", { amount: formatINR(upiBilledToday) }) : tr("upiPendingHint")}
+      value={upiPending}
+      onChange={setUpiPending}
+    />
+  );
 
   function run(fn: () => Promise<{ error: string | null }>, after?: () => void) {
     setError(null);
@@ -230,13 +243,14 @@ export function DayClose({
                 />
               ),
             )}
+            {upiInput}
             {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
             <button
               type="button"
               disabled={!countsValid || pending}
               onClick={() =>
                 run(() =>
-                  setOpening({ date: openingDate, cash: parsed[0], bank: parsed[1], wallet: parsed[2], csc: parsed[3] }),
+                  setOpening({ date: openingDate, ...balances }),
                 )
               }
               className="min-h-14 w-full rounded-xl bg-brand-700 text-lg font-bold text-white hover:bg-brand-800 disabled:bg-zinc-300"
@@ -354,6 +368,7 @@ export function DayClose({
             value={counts.csc}
             onChange={(v) => setCounts((c) => ({ ...c, csc: v }))}
           />
+          {upiInput}
         </div>
         {error && <p className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
         <button
@@ -362,7 +377,7 @@ export function DayClose({
           onClick={() => {
             setError(null);
             startTransition(async () => {
-              const res = await closeDay({ date, cash: parsed[0], bank: parsed[1], wallet: parsed[2], csc: parsed[3] });
+              const res = await closeDay({ date, ...balances });
               if (res.error) setError(res.error);
               else if (res.result) setResult(res.result);
             });
@@ -510,68 +525,73 @@ function ResultView({
   onReopen: () => void;
 }) {
   const [note, setNote] = useState(result.note ?? "");
-  const bigDiff = ACCOUNTS.some((a) => Math.abs(Number(result.difference[a])) > NOTE_THRESHOLD);
-  const b = result.breakdown;
+  const prev = result.previous;
+  const takings = Number(result.takings);
+  const billed = Number(result.billed);
+  const upiChange = Number(result.upi_pending) - Number(prev.upi_pending);
+  const signed = (n: number) => `${n > 0 ? "+" : n < 0 ? "−" : ""}${formatINR(Math.abs(n))}`;
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       <div>
         <p className="text-sm font-semibold uppercase tracking-wide text-emerald-700">{tr("step3")}</p>
         <h1 className="text-2xl font-bold text-zinc-900">{tr("resultTitle", { date: result.close_date })}</h1>
+        <p className="text-sm text-zinc-500">{tr("sincePrevious", { date: prev.date })}</p>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="rounded-2xl bg-emerald-50 p-5 shadow-sm">
+          <p className="text-base font-semibold text-emerald-800">{tr("takings")}</p>
+          <p className={clsx("text-3xl font-bold", takings < 0 ? "text-red-700" : "text-emerald-900")}>{signed(takings)}</p>
+        </div>
+        <div className="rounded-2xl bg-white p-5 shadow-sm">
+          <p className="text-base font-semibold text-zinc-700">{tr("net")}</p>
+          <p className="text-3xl font-bold text-zinc-900">{signed(Number(result.net))}</p>
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
         <div className="grid grid-cols-4 gap-2 border-b border-zinc-100 px-5 py-3 text-sm font-medium text-zinc-500">
           <span />
-          <span className="text-right">{tr("expected")}</span>
-          <span className="text-right">{tr("actual")}</span>
-          <span className="text-right">{tr("difference")}</span>
+          <span className="text-right">{tr("previous")}</span>
+          <span className="text-right">{tr("now")}</span>
+          <span className="text-right">{tr("change")}</span>
         </div>
         {ACCOUNTS.map((a) => {
-          const diff = Number(result.difference[a]);
-          const ok = Math.abs(diff) < 0.005;
-          const small = Math.abs(diff) <= NOTE_THRESHOLD;
+          const change = Number(result.actual[a]) - Number(prev[a]);
           return (
-            <div key={a} className="grid grid-cols-4 items-center gap-2 border-b border-zinc-100 px-5 py-4 last:border-0">
+            <div key={a} className="grid grid-cols-4 items-center gap-2 border-b border-zinc-100 px-5 py-4">
               <span className="text-base font-semibold text-zinc-900">{tr(`account.${a}`)}</span>
-              <span className="text-right text-base text-zinc-600">{formatINR(result.expected[a])}</span>
+              <span className="text-right text-base text-zinc-600">{formatINR(prev[a])}</span>
               <span className="text-right text-base font-semibold text-zinc-900">{formatINR(result.actual[a])}</span>
-              <span
-                className={clsx(
-                  "justify-self-end rounded-full px-3 py-1 text-right text-sm font-bold",
-                  ok ? "bg-emerald-100 text-emerald-800" : small ? "bg-amber-100 text-amber-800" : "bg-red-100 text-red-700",
-                )}
-              >
-                {ok ? tr("matches") : `${diff > 0 ? "+" : "−"}${formatINR(Math.abs(diff))}`}
+              <span className={clsx("text-right text-base font-semibold", change < 0 ? "text-red-700" : "text-emerald-700")}>
+                {signed(change)}
               </span>
             </div>
           );
         })}
+        <div className="grid grid-cols-4 items-center gap-2 px-5 py-4">
+          <span className="text-base font-semibold text-zinc-900">{tr("upiPendingShort")}</span>
+          <span className="text-right text-base text-zinc-600">{formatINR(prev.upi_pending)}</span>
+          <span className="text-right text-base font-semibold text-zinc-900">{formatINR(result.upi_pending)}</span>
+          <span className={clsx("text-right text-base font-semibold", upiChange < 0 ? "text-red-700" : "text-emerald-700")}>
+            {signed(upiChange)}
+          </span>
+        </div>
       </div>
 
-      {Number(result.upi_pending) > 0 && (
-        <p className="rounded-2xl bg-brand-50 p-4 text-base text-brand-800">
-          {tr("upiPending", { amount: formatINR(result.upi_pending) })}
-        </p>
-      )}
-
-      <details className="rounded-2xl bg-white p-5 text-sm text-zinc-600 shadow-sm">
-        <summary className="cursor-pointer font-medium text-zinc-800">{tr("howCalculated")}</summary>
-        <ul className="mt-3 space-y-1">
-          <li>{tr("bd.cash", { amount: formatINR(b.cash_received) })}</li>
-          <li>{tr("bd.upi", { amount: formatINR(b.upi_card_settled) })}</li>
-          <li>{tr("bd.govtBank", { amount: formatINR(b.govt_fees_bank) })}</li>
-          <li>{tr("bd.govtWallet", { amount: formatINR(b.govt_fees_wallet) })}</li>
-          <li>{tr("bd.govtCsc", { amount: formatINR(b.govt_fees_csc ?? 0) })}</li>
-          <li>
-            {tr("kind.expense")} {formatINR(b.movements.expense)} · {tr("kind.deposit")} {formatINR(b.movements.deposit)} ·{" "}
-            {tr("kind.withdrawal")} {formatINR(b.movements.withdrawal)} · {tr("kind.topup")} {formatINR(b.movements.topup)}
-          </li>
+      <div className="rounded-2xl bg-white p-5 text-base text-zinc-700 shadow-sm">
+        <ul className="space-y-1">
+          <li>{tr("addedBack", { expense: formatINR(result.expenses), took: formatINR(result.owner_took) })}</li>
+          <li className="text-sm text-zinc-500">{tr("transfersNote")}</li>
         </ul>
-      </details>
+        <p className="mt-3 rounded-xl bg-zinc-50 p-3 text-sm text-zinc-600">
+          {tr("billedInfo", { amount: formatINR(billed) })}
+        </p>
+      </div>
 
-      <div className={clsx("rounded-2xl p-5 shadow-sm", bigDiff && !result.note ? "bg-amber-50" : "bg-white")}>
-        <p className="text-base font-semibold text-zinc-800">{bigDiff ? tr("noteRequired") : tr("noteOptional")}</p>
+      <div className="rounded-2xl bg-white p-5 shadow-sm">
+        <p className="text-base font-semibold text-zinc-800">{tr("noteOptional")}</p>
         <textarea
           value={note}
           onChange={(e) => setNote(e.target.value)}

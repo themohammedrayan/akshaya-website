@@ -98,8 +98,7 @@ export default async function PricesPage({
                     className="mt-1 block rounded-lg border border-zinc-300 px-2 py-1.5 text-sm"
                   >
                     <option value="bank">Bank</option>
-                    <option value="wallet">Akshaya wallet</option>
-                    <option value="csc">CSC wallet</option>
+                    <option value="wallet">Wallet</option>
                   </select>
                 </label>
                 <label className="flex items-center gap-1.5 text-xs text-zinc-600">

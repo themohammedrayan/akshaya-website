@@ -24,16 +24,19 @@ export type Database = {
           close_date: string
           closed_at: string
           closed_by: string | null
-          expected_bank: number
-          expected_cash: number
-          expected_csc: number
-          expected_wallet: number
+          expected_bank: number | null
+          expected_cash: number | null
+          expected_wallet: number | null
           id: string
           is_opening: boolean
           note: string | null
           reopened_at: string | null
           reopened_by: string | null
           status: string
+          billed_total: number | null
+          expenses: number | null
+          owner_took: number | null
+          takings: number | null
           upi_pending: number
         }
         Insert: {
@@ -45,16 +48,19 @@ export type Database = {
           close_date: string
           closed_at?: string
           closed_by?: string | null
-          expected_bank: number
-          expected_cash: number
-          expected_csc?: number
-          expected_wallet: number
+          expected_bank?: number | null
+          expected_cash?: number | null
+          expected_wallet?: number | null
           id?: string
           is_opening?: boolean
           note?: string | null
           reopened_at?: string | null
           reopened_by?: string | null
           status?: string
+          billed_total?: number | null
+          expenses?: number | null
+          owner_took?: number | null
+          takings?: number | null
           upi_pending?: number
         }
         Update: {
@@ -66,16 +72,19 @@ export type Database = {
           close_date?: string
           closed_at?: string
           closed_by?: string | null
-          expected_bank?: number
-          expected_cash?: number
-          expected_csc?: number
-          expected_wallet?: number
+          expected_bank?: number | null
+          expected_cash?: number | null
+          expected_wallet?: number | null
           id?: string
           is_opening?: boolean
           note?: string | null
           reopened_at?: string | null
           reopened_by?: string | null
           status?: string
+          billed_total?: number | null
+          expenses?: number | null
+          owner_took?: number | null
+          takings?: number | null
           upi_pending?: number
         }
         Relationships: [
@@ -672,6 +681,7 @@ export type Database = {
           p_cash: number
           p_csc: number
           p_date: string
+          p_upi_pending: number
           p_wallet: number
         }
         Returns: Json
@@ -722,6 +732,7 @@ export type Database = {
           p_cash: number
           p_csc: number
           p_date: string
+          p_upi_pending: number
           p_wallet: number
         }
         Returns: undefined
