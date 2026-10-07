@@ -58,14 +58,19 @@ export default async function DayCloseReportPage({
             What the shop made, from how the balances changed. Separate from bills — billed totals are shown for comparison only.
           </p>
         </div>
-        {/* Plain <a download>: a CSV from a route handler needs a full browser request, not client navigation. */}
-        <a
-          href={`/dashboard/close/history/export?from=${from}&to=${to}`}
-          download
-          className="text-sm font-medium text-brand-700 hover:underline"
-        >
-          Download CSV
-        </a>
+        <div className="flex items-center gap-4">
+          <Link href={`/dashboard/close/analytics?from=${from}&to=${to}`} className="text-sm font-medium text-brand-700 hover:underline">
+            Analytics
+          </Link>
+          {/* Plain <a download>: a CSV from a route handler needs a full browser request, not client navigation. */}
+          <a
+            href={`/dashboard/close/history/export?from=${from}&to=${to}`}
+            download
+            className="text-sm font-medium text-brand-700 hover:underline"
+          >
+            Download CSV
+          </a>
+        </div>
       </div>
 
       <form method="get" className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-zinc-200 bg-white p-4">

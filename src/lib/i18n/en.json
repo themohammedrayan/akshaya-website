@@ -123,7 +123,8 @@
       "prices": "Prices",
       "printedForms": "Printed forms",
       "logout": "Log out",
-      "dayClose": "Day close"
+      "dayClose": "Day close",
+      "analytics": "Analytics"
     },
     "newBill": {
       "search": "Search service…",
@@ -288,7 +289,8 @@
       "change": "Change",
       "addedBack": "Includes expenses {expense} and owner took {took} — money that left but was earned.",
       "transfersNote": "Cash → Bank and wallet top-ups only move money between places, so they don't count.",
-      "billedInfo": "Bills recorded over these days: {amount} (for info only — not every payment may be billed)."
+      "billedInfo": "Bills recorded over these days: {amount} (for info only — not every payment may be billed).",
+      "analytics": "Analytics"
     }
   }
 }

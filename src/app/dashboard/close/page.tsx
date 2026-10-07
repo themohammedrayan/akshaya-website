@@ -65,6 +65,11 @@ export default async function DayClosePage({
               {t("billing.close.history")}
             </Link>
           )}
+          {isOwner && (
+            <Link href="/dashboard/close/analytics" className="text-sm font-medium text-brand-700 hover:underline">
+              {t("billing.close.analytics")}
+            </Link>
+          )}
         </div>
       </div>
 

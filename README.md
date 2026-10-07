@@ -169,7 +169,11 @@ received today that only reaches the bank tomorrow. `close_day()` works out:
 - billed total over the same days - stored and shown **for info only**, never compared.
 
 The owner sets opening balances once, sees the Day close report at `/dashboard/close/history`
-(date range, totals, CSV), can cancel movements and reopen the latest close. The billing Reports
+(date range, totals, CSV), can cancel movements and reopen the latest close. Owner-only **Analytics**
+(`/dashboard/close/analytics`, formulas in `src/lib/closeAnalytics.ts`) shows profit, expenses, net, margin
+(net ÷ shop made) vs the previous period, daily and 12-month trends, weekday averages, money position by
+account, top expenses and billing coverage (billed ÷ shop made). Charts are plain SVG
+(`src/components/dashboard/charts.tsx`, no chart library). The billing Reports
 page shows bills only. Migrations: `20261007000027_day_closing.sql`,
 `20261008000028_day_close_register.sql`.
 
