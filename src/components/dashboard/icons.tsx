@@ -67,6 +67,12 @@ export const ChartIcon = (p: IconProps) => (
     <path d="M7 15v3M12 10v8M17 6v12" />
   </Svg>
 );
+export const TrendIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="m3 17 6-6 4 4 8-8" />
+    <path d="M15 7h6v6" />
+  </Svg>
+);
 export const TagIcon = (p: IconProps) => (
   <Svg {...p}>
     <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z" />

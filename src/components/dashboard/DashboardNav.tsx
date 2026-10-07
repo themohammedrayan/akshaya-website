@@ -4,12 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { useTranslation } from "@/lib/i18n/useTranslation";
-import { ChartIcon, FileIcon, GlobeIcon, ListIcon, ReceiptIcon, SafeIcon, TagIcon } from "./icons";
+import { ChartIcon, FileIcon, GlobeIcon, ListIcon, ReceiptIcon, SafeIcon, TagIcon, TrendIcon } from "./icons";
 
 const ITEMS = [
   { href: "/dashboard/invoices/new", label: "newBill", Icon: ReceiptIcon, primary: true },
   { href: "/dashboard/invoices", label: "bills", Icon: ListIcon },
   { href: "/dashboard/close", label: "dayClose", Icon: SafeIcon },
+  { href: "/dashboard/close/analytics", label: "analytics", Icon: TrendIcon, ownerOnly: true },
   { href: "/dashboard", label: "requests", Icon: GlobeIcon },
   { href: "/dashboard/reports", label: "reports", Icon: ChartIcon, ownerOnly: true },
   { href: "/dashboard/prices", label: "prices", Icon: TagIcon, ownerOnly: true },
@@ -23,6 +24,7 @@ function isActive(pathname: string, href: string): boolean {
     // Request queue + request detail pages (/dashboard/<uuid>).
     return pathname === href || /^\/dashboard\/[0-9a-f-]{36}$/.test(pathname);
   }
+  if (href === "/dashboard/close") return pathname.startsWith(href) && !pathname.startsWith("/dashboard/close/analytics");
   return pathname.startsWith(href);
 }
 

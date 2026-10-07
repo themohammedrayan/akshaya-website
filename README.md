@@ -156,16 +156,26 @@ in English.
 
 ## Day close (staff dashboard)
 
-`/dashboard/close` - end-of-day reconciliation of the three places money sits: **cash drawer,
-bank, portal wallet**. Staff record non-bill money movements (expense, cash → bank deposit, owner
-withdrawal, wallet top-up), then enter the counted cash and the bank/wallet balances *before*
-seeing the expected figures (blind count). `close_day()` computes expected balances from the
-previous close's actual balances plus everything since: cash bills, UPI/card **settling T+1**
-(today's show as "arriving tomorrow"), govt fees paid from bank or wallet (per service:
-`services.govt_paid_from`, set on the Prices page) and the movements. Differences over ₹10 need a
-note. The owner sets opening balances once, sees `/dashboard/close/history` (+ CSV), can cancel
-movements and reopen the latest close. Reports show shop expenses and net income. Migration:
-`20261007000027_day_closing.sql`.
+`/dashboard/close` - a daily **balance register**, deliberately independent of billing (not every
+payment gets a bill yet). Staff record non-bill money movements (expense, cash → bank deposit,
+owner withdrawal, Akshaya/CSC wallet top-up), then enter the four balances - **cash drawer**
+(typed, or counted note by note), **bank**, **Akshaya portal wallet**, **CSC wallet** - plus GPay/UPI
+received today that only reaches the bank tomorrow. `close_day()` works out:
+
+- takings ("shop made") = change in total money (incl. GPay pending) since the previous close +
+  expenses + owner withdrawals. Deposits/top-ups only move money between places and cancel out;
+  govt fees paid from a wallet lower its balance, so takings is roughly service income.
+- net = takings - expenses.
+- billed total over the same days - stored and shown **for info only**, never compared.
+
+The owner sets opening balances once, sees the Day close report at `/dashboard/close/history`
+(date range, totals, CSV), can cancel movements and reopen the latest close. Owner-only **Analytics**
+(`/dashboard/close/analytics`, formulas in `src/lib/closeAnalytics.ts`) shows profit, expenses, net, margin
+(net ÷ shop made) vs the previous period, daily and 12-month trends, weekday averages, money position by
+account, top expenses and billing coverage (billed ÷ shop made). Charts are plain SVG
+(`src/components/dashboard/charts.tsx`, no chart library). The billing Reports
+page shows bills only. Migrations: `20261007000027_day_closing.sql`,
+`20261008000028_day_close_register.sql`.
 
 ## i18n
 
