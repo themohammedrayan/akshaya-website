@@ -21,7 +21,7 @@ export function LanguageToggle() {
           }}
           aria-pressed={lang === option}
           className={clsx(
-            "rounded-full px-3 py-1 font-medium transition-colors",
+            "rounded-full px-2.5 py-1 text-xs font-medium transition-colors sm:px-3 sm:text-sm",
             lang === option ? "bg-brand-700 text-white" : "text-zinc-600 hover:bg-zinc-100",
           )}
         >

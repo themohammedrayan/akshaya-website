@@ -8,8 +8,7 @@ export default async function Home() {
     .select("id, slug, name_en, name_ml, category, fee, processing_time")
     .eq("active", true)
     .eq("show_on_website", true)
-    .order("sort_order")
-    .limit(6);
+    .order("sort_order");
 
   return <LandingContent services={services ?? []} />;
 }

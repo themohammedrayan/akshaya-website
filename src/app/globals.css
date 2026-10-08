@@ -8,21 +8,44 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter), var(--font-malayalam), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
 
-  /* Akshaya e-Centre brand blue. Centralized here so a future exact-shade
-     adjustment (e.g. matching a real center's signage) is a one-file change. */
-  --color-brand-50: #eef4fb;
-  --color-brand-100: #dce8f7;
-  --color-brand-200: #b9d1ef;
-  --color-brand-300: #8bb3e3;
-  --color-brand-400: #5790d3;
-  --color-brand-500: #3572bd;
-  --color-brand-600: #24589e;
-  --color-brand-700: #1b4680;
-  --color-brand-800: #163862;
-  --color-brand-900: #122c4d;
+  /* Akshaya brand navy, sampled from the official logo's house (#2D237B).
+     Centralized here so a future exact-shade adjustment is a one-file change. */
+  --color-brand-50: #f0eff9;
+  --color-brand-100: #e1def3;
+  --color-brand-200: #c3bde7;
+  --color-brand-300: #9d94d5;
+  --color-brand-400: #7468c0;
+  --color-brand-500: #5244a8;
+  --color-brand-600: #3e3193;
+  --color-brand-700: #2d237b;
+  --color-brand-800: #241c63;
+  --color-brand-900: #1a144a;
+
+  /* Sky blue from the logo's globe (#159FDB), used for accents and secondary CTAs. */
+  --color-accent-50: #ecf8fd;
+  --color-accent-100: #d3eefa;
+  --color-accent-200: #a8ddf4;
+  --color-accent-300: #6fc6ec;
+  --color-accent-400: #3bb1e3;
+  --color-accent-500: #159fdb;
+  --color-accent-600: #0f84b9;
+  --color-accent-700: #0e6a94;
+  --color-accent-800: #11577a;
+  --color-accent-900: #134965;
+
+  --animate-marquee: marquee 40s linear infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
 }
 
 /* Every component in this app is built for a light/white background
@@ -38,5 +61,11 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
 }
