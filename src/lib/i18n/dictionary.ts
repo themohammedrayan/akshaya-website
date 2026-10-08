@@ -3,6 +3,14 @@ import ml from "./ml.json";
 
 export type Lang = "en" | "ml";
 
+/** Language for first-time visitors (no `lang` cookie yet). */
+export const DEFAULT_LANG: Lang = "ml";
+
+/** Reads the `lang` cookie value, falling back to DEFAULT_LANG. */
+export function langFromCookie(value: string | undefined): Lang {
+  return value === "en" || value === "ml" ? value : DEFAULT_LANG;
+}
+
 export type Dictionary = typeof en;
 
 export const dictionaries = { en, ml } satisfies Record<Lang, unknown>;

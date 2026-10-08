@@ -91,7 +91,7 @@ export function LandingContent({ services }: { services: Service[] }) {
               {t("landing.trackTitle")}
             </h2>
             <p className="mt-4 text-center text-white/85">{t("landing.trackBody")}</p>
-            <form action="/status" className="mt-5 flex gap-2">
+            <form action="/status" className="mt-5 flex flex-wrap gap-2">
               <label htmlFor="quick-track" className="sr-only">
                 {t("status.trackingCodeLabel")}
               </label>
@@ -100,11 +100,11 @@ export function LandingContent({ services }: { services: Service[] }) {
                 name="code"
                 required
                 placeholder="AKS-7F3K"
-                className="w-full min-w-0 flex-1 rounded-md border border-white/20 bg-white px-3 py-2.5 uppercase text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                className="w-full min-w-40 flex-1 rounded-md border border-white/20 bg-white px-3 py-2.5 uppercase text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-accent-400"
               />
               <button
                 type="submit"
-                className="inline-flex items-center gap-1.5 rounded-md bg-accent-500 px-4 font-semibold hover:bg-accent-600"
+                className="inline-flex grow items-center justify-center gap-1.5 rounded-md bg-accent-500 px-4 py-2.5 font-semibold hover:bg-accent-600 sm:grow-0"
               >
                 <SearchIcon className="h-4 w-4" />
                 {t("status.submit")}

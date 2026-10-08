@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter, Noto_Sans_Malayalam } from "next/font/google";
 import { cookies } from "next/headers";
-import { LanguageProvider, type Lang } from "@/lib/i18n/LanguageProvider";
+import { LanguageProvider } from "@/lib/i18n/LanguageProvider";
+import { langFromCookie } from "@/lib/i18n/dictionary";
 import { Analytics } from "@/components/Analytics";
 import "./globals.css";
 
@@ -33,7 +34,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
-  const initialLang: Lang = cookieStore.get("lang")?.value === "ml" ? "ml" : "en";
+  const initialLang = langFromCookie(cookieStore.get("lang")?.value);
 
   return (
     <html
