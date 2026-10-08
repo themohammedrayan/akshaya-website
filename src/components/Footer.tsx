@@ -105,7 +105,10 @@ export function Footer() {
 
       <div className="border-t border-white/10">
         <p className="mx-auto max-w-7xl px-4 py-4 text-xs text-white/50 sm:px-6">
-          &copy; {new Date().getFullYear()} {CENTER.name}. {t("footer.rights")}
+          &copy; {new Date().getFullYear()} {CENTER.name}. {t("footer.rights")} ·{" "}
+          <Link href="/privacy" className="hover:text-accent-300">
+            Privacy Policy
+          </Link>
         </p>
       </div>
     </footer>
