@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getStaffProfile } from "@/lib/staff";
 import { formatINR, isValidDate, todayIST } from "@/lib/billing";
+import { SubmitButton } from "@/components/dashboard/SubmitButton";
+import Form from "next/form";
 
 type Summary = {
   billed: { count: number; govt_total: number; service_total: number; grand_total: number };
@@ -49,16 +51,16 @@ export default async function ReportsPage({
         Govt fees are money collected on customers&apos; behalf and paid on — only the service charge is the center&apos;s income.
       </p>
 
-      <form method="get" className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-zinc-200 bg-white p-4">
+      <Form action="/dashboard/reports" className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-zinc-200 bg-white p-4">
         <label className="text-sm text-zinc-600">
           From <input type="date" name="from" defaultValue={from} className="ml-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
         </label>
         <label className="text-sm text-zinc-600">
           To <input type="date" name="to" defaultValue={to} className="ml-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
         </label>
-        <button type="submit" className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
+        <SubmitButton className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
           Show
-        </button>
+        </SubmitButton>
         <div className="flex flex-wrap gap-2">
           {presets.map((p) => (
             <Link
@@ -76,7 +78,7 @@ export default async function ReportsPage({
         >
           Download CSV
         </a>
-      </form>
+      </Form>
 
       {error || !summary ? (
         <p className="mt-6 rounded-lg bg-red-50 p-3 text-sm text-red-700">Could not load the report: {error?.message}</p>

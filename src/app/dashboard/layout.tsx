@@ -5,24 +5,28 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
 import { LogoutIcon } from "@/components/dashboard/icons";
 import { getServerTranslation } from "@/lib/i18n/server";
+import { getStaffProfile } from "@/lib/staff";
 import { todayIST } from "@/lib/billing";
 import { signOut } from "./actions";
+import { SubmitButton } from "@/components/dashboard/SubmitButton";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Profile (shared with the page via cache()), translations and the follow-up
+  // badge count are independent, so fetch them together.
+  const [{ userId, profile }, { t }, { count: followUpCount }] = await Promise.all([
+    getStaffProfile(),
+    getServerTranslation(),
+    createClient().then((supabase) =>
+      supabase
+        .from("enquiries")
+        .select("id", { count: "exact", head: true })
+        .or(`status.eq.new,and(status.eq.follow_up,follow_up_on.lte.${todayIST()})`),
+    ),
+  ]);
 
-  if (!user) {
+  if (!userId) {
     redirect("/login?redirect=/dashboard/invoices/new");
   }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("name, role")
-    .eq("id", user.id)
-    .single();
 
   if (!profile) {
     return (
@@ -33,20 +37,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
           Supabase Studio.
         </p>
         <form action={signOut} className="mt-6">
-          <button type="submit" className="text-sm font-medium text-brand-700 hover:underline">
+          <SubmitButton className="text-sm font-medium text-brand-700 hover:underline">
             Log out
-          </button>
+          </SubmitButton>
         </form>
       </div>
     );
   }
-
-  const { t } = await getServerTranslation();
-
-  const { count: followUpCount } = await supabase
-    .from("enquiries")
-    .select("id", { count: "exact", head: true })
-    .or(`status.eq.new,and(status.eq.follow_up,follow_up_on.lte.${todayIST()})`);
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-100 print:bg-white">
@@ -67,14 +64,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
                 {profile.name} · <span className="capitalize">{profile.role}</span>
               </span>
               <form action={signOut}>
-                <button
-                  type="submit"
+                <SubmitButton
                   title={t("billing.nav.logout")}
                   className="flex min-h-10 items-center gap-1.5 rounded-lg px-2 text-sm font-medium text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800"
                 >
                   <LogoutIcon className="h-5 w-5" />
                   <span className="hidden sm:inline">{t("billing.nav.logout")}</span>
-                </button>
+                </SubmitButton>
               </form>
             </div>
           </div>

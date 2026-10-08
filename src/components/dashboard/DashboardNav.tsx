@@ -1,9 +1,11 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
+import type { ComponentType } from "react";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { useTranslation } from "@/lib/i18n/useTranslation";
+import { Spinner } from "./SubmitButton";
 import { ChartIcon, FileIcon, GlobeIcon, ListIcon, PhoneIcon, ReceiptIcon, SafeIcon, TagIcon, TrendIcon } from "./icons";
 
 const ITEMS = [
@@ -27,6 +29,12 @@ function isActive(pathname: string, href: string): boolean {
   }
   if (href === "/dashboard/close") return pathname.startsWith(href) && !pathname.startsWith("/dashboard/close/analytics");
   return pathname.startsWith(href);
+}
+
+/** Swaps the tab icon for a spinner while that link's page is loading. */
+function NavIcon({ Icon }: { Icon: ComponentType<{ className?: string }> }) {
+  const { pending } = useLinkStatus();
+  return pending ? <Spinner className="h-5 w-5" /> : <Icon className="h-5 w-5" />;
 }
 
 /** followUpCount: WhatsApp enquiries needing a call now (new + due today + overdue). */
@@ -53,7 +61,7 @@ export function DashboardNav({ isOwner, followUpCount = 0 }: { isOwner: boolean;
                   : "text-zinc-600 hover:bg-zinc-100",
             )}
           >
-            <Icon className="h-5 w-5" />
+            <NavIcon Icon={Icon} />
             {t(`billing.nav.${label}`)}
             {badge && followUpCount > 0 && (
               <span className="rounded-full bg-red-600 px-2 py-0.5 text-xs font-bold text-white">{followUpCount}</span>

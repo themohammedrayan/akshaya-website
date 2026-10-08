@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getStaffProfile } from "@/lib/staff";
 import { SlabEditor } from "@/components/dashboard/SlabEditor";
 import { addBillingItem, updateServicePricing, revertToDefaultSlabs } from "./actions";
+import { SubmitButton } from "@/components/dashboard/SubmitButton";
 
 const CATEGORY_LABELS: Record<string, string> = {
   "e-district": "e-District",
@@ -109,12 +110,11 @@ export default async function PricesPage({
                   <input type="checkbox" name="active" defaultChecked={s.active} />
                   Active
                 </label>
-                <button
-                  type="submit"
+                <SubmitButton
                   className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
                 >
                   Save
-                </button>
+                </SubmitButton>
               </form>
 
               {s.variable_govt_fee && (
@@ -127,9 +127,9 @@ export default async function PricesPage({
                     {ownSlabs.length > 0 && (
                       <form action={revertToDefaultSlabs} className="mt-2">
                         <input type="hidden" name="serviceId" value={s.id} />
-                        <button type="submit" className="text-xs text-zinc-500 hover:text-brand-700 hover:underline">
+                        <SubmitButton className="text-xs text-zinc-500 hover:text-brand-700 hover:underline">
                           Remove own bands, use the defaults
-                        </button>
+                        </SubmitButton>
                       </form>
                     )}
                   </div>
@@ -170,9 +170,9 @@ export default async function PricesPage({
             Service charge ₹
             <input name="defaultServiceCharge" defaultValue="0" inputMode="decimal" className={`mt-1 block ${inputClass}`} />
           </label>
-          <button type="submit" className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
+          <SubmitButton className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
             Add item
-          </button>
+          </SubmitButton>
         </form>
       </section>
     </div>

@@ -4,6 +4,8 @@ import { getServerTranslation } from "@/lib/i18n/server";
 import { isValidDate, istRange, todayIST } from "@/lib/billing";
 import { DayClose, type Movement } from "@/components/dashboard/DayClose";
 import type { CloseResult } from "./actions";
+import { SubmitButton } from "@/components/dashboard/SubmitButton";
+import Form from "next/form";
 
 function nextDay(date: string): string {
   const d = new Date(`${date}T00:00:00Z`);
@@ -48,7 +50,7 @@ export default async function DayClosePage({
           )}
         </div>
         <div className="flex items-center gap-3">
-          <form method="get" className="flex items-center gap-2">
+          <Form action="/dashboard/close" className="flex items-center gap-2">
             <input
               type="date"
               name="date"
@@ -56,10 +58,10 @@ export default async function DayClosePage({
               max={today}
               className="rounded-xl border border-zinc-300 px-3 py-2 text-base"
             />
-            <button type="submit" className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-50">
+            <SubmitButton className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-50">
               {t("billing.close.go")}
-            </button>
-          </form>
+            </SubmitButton>
+          </Form>
           {isOwner && (
             <Link href="/dashboard/close/history" className="text-sm font-medium text-brand-700 hover:underline">
               {t("billing.close.history")}

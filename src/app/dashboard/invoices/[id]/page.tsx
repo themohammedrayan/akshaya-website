@@ -4,6 +4,7 @@ import { getStaffProfile } from "@/lib/staff";
 import { PAYMENT_MODES, formatDateTimeIST, formatINR, paymentModeLabel } from "@/lib/billing";
 import { InvoiceBadge } from "@/components/dashboard/InvoiceBadge";
 import { addPayment, cancelInvoice } from "../actions";
+import { SubmitButton } from "@/components/dashboard/SubmitButton";
 
 export default async function InvoiceDetailPage({
   params,
@@ -196,9 +197,9 @@ export default async function InvoiceDetailPage({
               Reference (optional)
               <input name="reference" className="mt-1 block rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
             </label>
-            <button type="submit" className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
+            <SubmitButton className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
               Record payment
-            </button>
+            </SubmitButton>
           </form>
         )}
       </div>
@@ -218,9 +219,9 @@ export default async function InvoiceDetailPage({
               placeholder="Reason, e.g. wrong amount - reissued"
               className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm"
             />
-            <button type="submit" className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
+            <SubmitButton className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
               Cancel invoice
-            </button>
+            </SubmitButton>
           </form>
         </details>
       )}

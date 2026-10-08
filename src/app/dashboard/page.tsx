@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { StatusBadge } from "@/components/StatusBadge";
+import { SubmitButton } from "@/components/dashboard/SubmitButton";
+import Form from "next/form";
 
 const STATUSES = [
   "submitted",
@@ -48,7 +50,7 @@ export default async function DashboardPage({
     <div>
       <h1 className="text-xl font-bold text-zinc-900">Request Queue</h1>
 
-      <form method="get" className="mt-4 flex flex-wrap gap-3 rounded-lg border border-zinc-200 bg-white p-4">
+      <Form action="/dashboard" className="mt-4 flex flex-wrap gap-3 rounded-lg border border-zinc-200 bg-white p-4">
         <select name="status" defaultValue={filters.status ?? ""} className="rounded-lg border border-zinc-300 px-3 py-2 text-sm">
           <option value="">All statuses</option>
           {STATUSES.map((s) => (
@@ -79,15 +81,15 @@ export default async function DashboardPage({
 
         <input type="date" name="date" defaultValue={filters.date ?? ""} className="rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
 
-        <button type="submit" className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
+        <SubmitButton className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
           Filter
-        </button>
+        </SubmitButton>
         {(filters.status || filters.service || filters.assigned || filters.date) && (
           <Link href="/dashboard" className="self-center text-sm text-zinc-500 hover:text-brand-700">
             Clear
           </Link>
         )}
-      </form>
+      </Form>
 
       <div className="mt-6 grid gap-3">
         {(requests ?? []).length === 0 && (

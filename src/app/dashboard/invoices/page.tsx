@@ -4,6 +4,8 @@ import { formatDateTimeIST, formatINR, istRange, isValidDate, todayIST } from "@
 import { getServerTranslation } from "@/lib/i18n/server";
 import { InvoiceBadge } from "@/components/dashboard/InvoiceBadge";
 import { PlusIcon, PrinterIcon, SearchIcon } from "@/components/dashboard/icons";
+import { SubmitButton } from "@/components/dashboard/SubmitButton";
+import Form from "next/form";
 
 export default async function InvoicesPage({
   searchParams,
@@ -62,7 +64,7 @@ export default async function InvoicesPage({
         </Link>
       </div>
 
-      <form method="get" className="mt-4 grid gap-3 rounded-2xl bg-white p-4 shadow-sm sm:grid-cols-[1fr_auto_auto_auto]">
+      <Form action="/dashboard/invoices" className="mt-4 grid gap-3 rounded-2xl bg-white p-4 shadow-sm sm:grid-cols-[1fr_auto_auto_auto]">
         <label className="relative block">
           <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-400" />
           <input
@@ -91,9 +93,9 @@ export default async function InvoicesPage({
           <option value="cancelled">{t("billing.bills.cancelled")}</option>
         </select>
         <div className="flex gap-2">
-          <button type="submit" className="min-h-12 flex-1 rounded-xl bg-brand-700 px-5 text-base font-semibold text-white hover:bg-brand-800">
+          <SubmitButton className="min-h-12 flex-1 rounded-xl bg-brand-700 px-5 text-base font-semibold text-white hover:bg-brand-800">
             {t("billing.bills.find")}
-          </button>
+          </SubmitButton>
           {hasFilters && (
             <Link
               href="/dashboard/invoices"
@@ -103,7 +105,7 @@ export default async function InvoicesPage({
             </Link>
           )}
         </div>
-      </form>
+      </Form>
 
       <div className="mt-4 grid gap-3">
         {invoices.length === 0 && (
