@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ServicesListContent } from "@/components/ServicesListContent";
 
 export const metadata: Metadata = {
-  title: "Services | Akshaya e-Center",
+  title: "Services",
   description: "Fees, processing time and documents required for every service we offer.",
 };
 
