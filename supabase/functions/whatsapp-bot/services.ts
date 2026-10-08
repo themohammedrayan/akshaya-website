@@ -1,10 +1,13 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { pickLang, t } from "./copy.ts";
-import type { Lang, ListSection, OutboundMessage, ServiceRow } from "./types.ts";
+import type { Lang, OutboundMessage, ServiceRow } from "./types.ts";
 
-const LIST_ROW_TITLE_LIMIT = 24; // WhatsApp interactive list row title hard limit
+const LIST_ROW_TITLE_LIMIT = 24; // WhatsApp interactive list row/section title hard limit
 const LIST_ROW_DESCRIPTION_LIMIT = 72;
-const LIST_ROWS_PER_SECTION = 10; // WhatsApp interactive list hard limit per section
+const LIST_MAX_ROWS = 10; // WhatsApp hard limit: 10 rows TOTAL across all sections of one list
+
+/** Row id prefix for category picks in the first-level menu, e.g. "cat:aadhaar". */
+export const CATEGORY_ID_PREFIX = "cat:";
 
 export async function fetchActiveServices(supabase: SupabaseClient): Promise<ServiceRow[]> {
   const { data, error } = await supabase
@@ -27,31 +30,69 @@ function truncate(text: string, limit: number): string {
   return `${text.slice(0, limit - 1)}…`;
 }
 
-function chunk<T>(items: T[], size: number): T[][] {
-  const chunks: T[][] = [];
-  for (let i = 0; i < items.length; i += size) {
-    chunks.push(items.slice(i, i + size));
-  }
-  return chunks;
+/** Short category names that fit the 24-char list title limit in both languages. */
+function shortCategoryTitle(lang: Lang, category: string): string {
+  const short: Record<string, { en: string; ml: string }> = {
+    "e-district": { en: "e-District Services", ml: "ഇ-ഡിസ്ട്രിക്റ്റ്" },
+    aadhaar: { en: "Aadhaar Services", ml: "ആധാർ സേവനങ്ങൾ" },
+    other: { en: "Other Services", ml: "മറ്റ് സേവനങ്ങൾ" },
+  };
+  const entry = short[category];
+  const title = entry ? pickLang(lang, entry.en, entry.ml) : t.categoryTitle(lang, category);
+  return truncate(title, LIST_ROW_TITLE_LIMIT);
 }
 
-export function buildMainMenuMessage(lang: Lang, services: ServiceRow[]): OutboundMessage {
-  const byCategory = new Map<string, ServiceRow[]>();
+function categoriesInOrder(services: ServiceRow[]): string[] {
+  const seen: string[] = [];
   for (const service of services) {
-    const bucket = byCategory.get(service.category) ?? [];
-    bucket.push(service);
-    byCategory.set(service.category, bucket);
+    if (!seen.includes(service.category)) seen.push(service.category);
+  }
+  return seen;
+}
+
+/** First-level menu: one row per category (services are ordered by sort_order, so categories follow that order). */
+export function buildMainMenuMessage(lang: Lang, services: ServiceRow[]): OutboundMessage {
+  const categories = categoriesInOrder(services).slice(0, LIST_MAX_ROWS);
+
+  return {
+    kind: "list",
+    body: pickLang(lang, "Please pick a category:", "ദയവായി ഒരു വിഭാഗം തിരഞ്ഞെടുക്കുക:"),
+    buttonLabel: pickLang(lang, "View categories", "വിഭാഗങ്ങൾ കാണുക"),
+    sections: [
+      {
+        title: pickLang(lang, "Categories", "വിഭാഗങ്ങൾ"),
+        rows: categories.map((category) => {
+          const count = services.filter((s) => s.category === category).length;
+          return {
+            id: `${CATEGORY_ID_PREFIX}${category}`,
+            title: shortCategoryTitle(lang, category),
+            description: pickLang(lang, `${count} services`, `${count} സേവനങ്ങൾ`),
+          };
+        }),
+      },
+    ],
+  };
+}
+
+/** Second-level menu: the services inside one category (capped at WhatsApp's 10-row limit). */
+export function buildCategoryServicesMessage(
+  lang: Lang,
+  services: ServiceRow[],
+  category: string
+): OutboundMessage {
+  const inCategory = services.filter((s) => s.category === category);
+  if (inCategory.length > LIST_MAX_ROWS) {
+    console.error(`Category ${category} has ${inCategory.length} services; only the first ${LIST_MAX_ROWS} are shown`);
   }
 
-  const sections: ListSection[] = [];
-
-  for (const [category, categoryServices] of byCategory) {
-    const parts = chunk(categoryServices, LIST_ROWS_PER_SECTION);
-    parts.forEach((part, idx) => {
-      const suffix = parts.length > 1 ? ` (${idx + 1})` : "";
-      sections.push({
-        title: truncate(`${t.categoryTitle(lang, category)}${suffix}`, LIST_ROW_TITLE_LIMIT),
-        rows: part.map((service) => ({
+  return {
+    kind: "list",
+    body: t.menuBody(lang),
+    buttonLabel: t.menuButtonLabel(lang),
+    sections: [
+      {
+        title: shortCategoryTitle(lang, category),
+        rows: inCategory.slice(0, LIST_MAX_ROWS).map((service) => ({
           id: service.slug,
           title: truncate(pickLang(lang, service.name_en, service.name_ml), LIST_ROW_TITLE_LIMIT),
           description: truncate(
@@ -59,15 +100,8 @@ export function buildMainMenuMessage(lang: Lang, services: ServiceRow[]): Outbou
             LIST_ROW_DESCRIPTION_LIMIT
           ),
         })),
-      });
-    });
-  }
-
-  return {
-    kind: "list",
-    body: t.menuBody(lang),
-    buttonLabel: t.menuButtonLabel(lang),
-    sections,
+      },
+    ],
   };
 }
 

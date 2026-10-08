@@ -1,6 +1,12 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { t } from "../copy.ts";
-import { buildMainMenuMessage, fetchActiveServices, findServiceBySlug } from "../services.ts";
+import {
+  buildCategoryServicesMessage,
+  buildMainMenuMessage,
+  CATEGORY_ID_PREFIX,
+  fetchActiveServices,
+  findServiceBySlug,
+} from "../services.ts";
 import type { ConversationState, InboundMessage, OutboundMessage, RequiredDoc, StepResult } from "../types.ts";
 import { uploadRequestDocument } from "../docs.ts";
 
@@ -37,6 +43,12 @@ async function welcome(
   return { nextState: { ...state, flow: "intake", step: "welcome" }, replies };
 }
 
+/**
+ * main_menu handles both levels of the menu: a category pick (id "cat:<category>")
+ * replies with that category's services list; a service pick (id = slug) opens
+ * the service detail. WhatsApp lists cap at 10 rows total, so the full catalogue
+ * can't go in one list.
+ */
 async function mainMenu(
   supabase: SupabaseClient,
   state: ConversationState,
@@ -46,6 +58,16 @@ async function mainMenu(
   const services = await fetchActiveServices(supabase);
 
   if (msg.type === "interactive" && msg.interactiveId) {
+    if (msg.interactiveId.startsWith(CATEGORY_ID_PREFIX)) {
+      const category = msg.interactiveId.slice(CATEGORY_ID_PREFIX.length);
+      if (services.some((s) => s.category === category)) {
+        return {
+          nextState: { ...state, step: "main_menu" },
+          replies: [buildCategoryServicesMessage(lang, services, category)],
+        };
+      }
+    }
+
     const service = findServiceBySlug(services, msg.interactiveId);
     if (service) {
       const nextState: ConversationState = {
