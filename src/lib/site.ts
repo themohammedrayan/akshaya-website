@@ -38,5 +38,6 @@ export const HERO_SLIDES: {
 }[] = [
   { key: "welcome", image: "/hero/akshaya-centres.webp", cta: { href: "/request", labelKey: "landing.ctaStart" } },
   { key: "edistrict", image: "/hero/akshaya-staff.webp", cta: { href: "/services#e-district", labelKey: "hero.ctaServices" } },
-  { key: "aadhaar", image: null, cta: { href: "/services#aadhaar", labelKey: "hero.ctaServices" } },
+  // Photo: Aadhaar enrolment camp, Moonniyur, Malappuram (PIB / Govt. of India, GODL-India).
+  { key: "aadhaar", image: "/hero/aadhaar-enrolment.webp", cta: { href: "/services#aadhaar", labelKey: "hero.ctaServices" } },
 ];
