@@ -5,6 +5,8 @@ import { getServerTranslation } from "@/lib/i18n/server";
 import { formatDateTimeIST, istRange, isValidDate, todayIST } from "@/lib/billing";
 import { toWhatsAppNumber } from "@/lib/whatsappTemplates";
 import { logCall } from "./actions";
+import { SubmitButton } from "@/components/dashboard/SubmitButton";
+import Form from "next/form";
 
 const TABS = ["new", "today", "overdue", "upcoming", "all"] as const;
 type Tab = (typeof TABS)[number];
@@ -54,8 +56,10 @@ export default async function FollowUpsPage({
   let query = supabase
     .from("enquiries")
     .select(
-      "id, phone, name, kind, last_message, message_count, status, follow_up_on, created_at, last_contact_at, service:services(name_ml, name_en)",
+      "id, phone, name, kind, last_message, message_count, status, follow_up_on, created_at, last_contact_at, service:services(name_ml, name_en), enquiry_calls(id, outcome, note, called_at, caller:profiles(name))",
     )
+    // Call history comes embedded in the same request (newest first).
+    .order("called_at", { referencedTable: "enquiry_calls", ascending: false })
     .limit(200);
 
   if (tab === "new") query = query.eq("status", "new").order("last_contact_at", { ascending: true });
@@ -71,14 +75,6 @@ export default async function FollowUpsPage({
   }
 
   const { data: enquiries } = await query;
-  const ids = (enquiries ?? []).map((e) => e.id);
-  const { data: calls } = ids.length
-    ? await supabase
-        .from("enquiry_calls")
-        .select("id, enquiry_id, outcome, note, called_at, caller:profiles(name)")
-        .in("enquiry_id", ids)
-        .order("called_at", { ascending: false })
-    : { data: [] };
 
   const tomorrow = addDays(today, 1);
 
@@ -103,18 +99,18 @@ export default async function FollowUpsPage({
       </div>
 
       {tab === "all" && (
-        <form method="get" className="mt-3 flex flex-wrap items-center gap-3 rounded-lg border border-zinc-200 bg-white p-3">
+        <Form action="/dashboard/followups" className="mt-3 flex flex-wrap items-center gap-3 rounded-lg border border-zinc-200 bg-white p-3">
           <input type="hidden" name="tab" value="all" />
           <input type="date" name="date" defaultValue={date ?? ""} className="rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
-          <button type="submit" className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
+          <SubmitButton className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
             {tf("filter")}
-          </button>
+          </SubmitButton>
           {date && (
             <Link href="/dashboard/followups?tab=all" className="text-sm text-zinc-500 hover:text-brand-700">
               {tf("clear")}
             </Link>
           )}
-        </form>
+        </Form>
       )}
 
       {filters.error && (
@@ -127,7 +123,7 @@ export default async function FollowUpsPage({
         )}
 
         {(enquiries ?? []).map((e) => {
-          const history = (calls ?? []).filter((c) => c.enquiry_id === e.id);
+          const history = e.enquiry_calls;
           const serviceName = e.service ? (lang === "ml" ? e.service.name_ml : e.service.name_en) : null;
           const open = e.status === "new" || e.status === "follow_up";
           return (
@@ -246,8 +242,7 @@ export default async function FollowUpsPage({
 
 function OutcomeButton({ value, label, tone }: { value: string; label: string; tone?: "good" | "muted" }) {
   return (
-    <button
-      type="submit"
+    <SubmitButton
       name="outcome"
       value={value}
       className={clsx(
@@ -260,6 +255,6 @@ function OutcomeButton({ value, label, tone }: { value: string; label: string; t
       )}
     >
       {label}
-    </button>
+    </SubmitButton>
   );
 }

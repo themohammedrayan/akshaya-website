@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { SubmitButton } from "@/components/dashboard/SubmitButton";
+import Form from "next/form";
 
 const FORM_LABELS: Record<string, string> = {
   "form1-en": "Form 1",
@@ -33,17 +35,17 @@ export default async function PrintedFormsPage({
         Record-keeping log of Aadhaar enrolment forms printed via the UIDAI overlay printer.
       </p>
 
-      <form method="get" className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-zinc-200 bg-white p-4">
+      <Form action="/dashboard/printed-forms" className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-zinc-200 bg-white p-4">
         <input type="date" name="date" defaultValue={filters.date ?? ""} className="rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
-        <button type="submit" className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
+        <SubmitButton className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
           Filter
-        </button>
+        </SubmitButton>
         {filters.date && (
           <Link href="/dashboard/printed-forms" className="text-sm text-zinc-500 hover:text-brand-700">
             Clear
           </Link>
         )}
-      </form>
+      </Form>
 
       <div className="mt-6 grid gap-3">
         {(printedForms ?? []).length === 0 && (

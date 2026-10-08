@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import clsx from "clsx";
 import { getStaffProfile } from "@/lib/staff";
 import { formatDateTimeIST, formatINR, isValidDate, todayIST } from "@/lib/billing";
+import { SubmitButton } from "@/components/dashboard/SubmitButton";
+import Form from "next/form";
 
 const ACCOUNTS = ["cash", "bank", "wallet", "csc"] as const;
 const LABELS = { cash: "Cash", bank: "Bank", wallet: "Akshaya wallet", csc: "CSC wallet" };
@@ -73,17 +75,17 @@ export default async function DayCloseReportPage({
         </div>
       </div>
 
-      <form method="get" className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-zinc-200 bg-white p-4">
+      <Form action="/dashboard/close/history" className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-zinc-200 bg-white p-4">
         <label className="text-sm text-zinc-600">
           From <input type="date" name="from" defaultValue={from} className="ml-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
         </label>
         <label className="text-sm text-zinc-600">
           To <input type="date" name="to" defaultValue={to} className="ml-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
         </label>
-        <button type="submit" className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
+        <SubmitButton className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
           Show
-        </button>
-      </form>
+        </SubmitButton>
+      </Form>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-4">
         <Card label={`Shop made (${counted.length} days)`} value={totals.takings} highlight />

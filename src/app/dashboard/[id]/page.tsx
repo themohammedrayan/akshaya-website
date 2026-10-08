@@ -7,6 +7,7 @@ import { WhatsAppMessageButton } from "@/components/dashboard/WhatsAppMessageBut
 import { InvoiceBadge } from "@/components/dashboard/InvoiceBadge";
 import { formatINR } from "@/lib/billing";
 import { updateStatus, addNote, assignRequest } from "./actions";
+import { SubmitButton } from "@/components/dashboard/SubmitButton";
 
 const NEXT_STATUSES: Record<string, string[]> = {
   submitted: ["submitted", "docs_verified", "needs_customer_action", "cancelled"],
@@ -28,43 +29,45 @@ export default async function RequestDetailPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: request } = await supabase
-    .from("requests")
-    .select(
-      "id, tracking_code, customer_name, customer_phone, status, assigned_to, created_at, service:services(name_en, name_ml, slug)",
-    )
-    .eq("id", id)
-    .single();
+  // Everything here only needs the id, so fetch it all in one round.
+  const [{ data: request }, { data: history }, { data: staff }, { data: documents }, { data: invoices }] =
+    await Promise.all([
+      supabase
+        .from("requests")
+        .select(
+          "id, tracking_code, customer_name, customer_phone, status, assigned_to, created_at, service:services(name_en, name_ml, slug)",
+        )
+        .eq("id", id)
+        .single(),
+      supabase
+        .from("status_history")
+        .select("id, status, note, is_internal, changed_at")
+        .eq("request_id", id)
+        .order("changed_at", { ascending: false }),
+      supabase.from("profiles").select("id, name").order("name"),
+      supabase
+        .from("request_documents")
+        .select("id, doc_label, storage_path, uploaded_at")
+        .eq("request_id", id)
+        .order("uploaded_at", { ascending: false }),
+      supabase
+        .from("invoices")
+        .select("id, invoice_no, status, grand_total, paid_total")
+        .eq("request_id", id)
+        .order("created_at", { ascending: false }),
+    ]);
 
   if (!request) notFound();
 
-  const [{ data: history }, { data: staff }, { data: documents }, { data: invoices }] = await Promise.all([
-    supabase
-      .from("status_history")
-      .select("id, status, note, is_internal, changed_at")
-      .eq("request_id", id)
-      .order("changed_at", { ascending: false }),
-    supabase.from("profiles").select("id, name").order("name"),
-    supabase
-      .from("request_documents")
-      .select("id, doc_label, storage_path, uploaded_at")
-      .eq("request_id", id)
-      .order("uploaded_at", { ascending: false }),
-    supabase
-      .from("invoices")
-      .select("id, invoice_no, status, grand_total, paid_total")
-      .eq("request_id", id)
-      .order("created_at", { ascending: false }),
-  ]);
-
-  const documentsWithUrls = await Promise.all(
-    (documents ?? []).map(async (doc) => {
-      const { data: signed } = await supabase.storage
+  // One batched call for all document links instead of one per document.
+  const docs = documents ?? [];
+  const { data: signed } = docs.length
+    ? await supabase.storage
         .from("request-docs")
-        .createSignedUrl(doc.storage_path, SIGNED_URL_TTL_SECONDS);
-      return { ...doc, url: signed?.signedUrl ?? null };
-    }),
-  );
+        .createSignedUrls(docs.map((doc) => doc.storage_path), SIGNED_URL_TTL_SECONDS)
+    : { data: [] };
+  const urlByPath = new Map((signed ?? []).map((s) => [s.path, s.signedUrl]));
+  const documentsWithUrls = docs.map((doc) => ({ ...doc, url: urlByPath.get(doc.storage_path) ?? null }));
 
   const options = NEXT_STATUSES[request.status] ?? [request.status];
 
@@ -122,12 +125,11 @@ export default async function RequestDetailPage({
                 </option>
               ))}
             </select>
-            <button
-              type="submit"
+            <SubmitButton
               className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800"
             >
               Save status
-            </button>
+            </SubmitButton>
           </form>
         </div>
 
@@ -147,12 +149,11 @@ export default async function RequestDetailPage({
               <input type="checkbox" name="visibleToCustomer" className="rounded" />
               Visible to customer on the status page
             </label>
-            <button
-              type="submit"
+            <SubmitButton
               className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
             >
               Add note
-            </button>
+            </SubmitButton>
           </form>
         </div>
 
@@ -241,12 +242,11 @@ export default async function RequestDetailPage({
                 </option>
               ))}
             </select>
-            <button
-              type="submit"
+            <SubmitButton
               className="w-full rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
             >
               Save assignment
-            </button>
+            </SubmitButton>
           </form>
         </div>
       </div>

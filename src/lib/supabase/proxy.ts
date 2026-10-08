@@ -26,9 +26,10 @@ export async function updateSession(request: NextRequest) {
   );
 
   // Required to keep the session cookie fresh - do not remove.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims() verifies the JWT locally with asymmetric signing keys (no Auth
+  // round trip on every click); with a symmetric secret it asks the Auth server.
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims.sub;
 
   if (request.nextUrl.pathname.startsWith("/dashboard") && !user) {
     const redirectUrl = new URL("/login", request.url);

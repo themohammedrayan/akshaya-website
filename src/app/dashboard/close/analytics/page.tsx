@@ -18,6 +18,8 @@ import {
   type ExpenseRow,
 } from "@/lib/closeAnalytics";
 import { BarChart, HBars, Legend, SERIES, StackedBarChart } from "@/components/dashboard/charts";
+import { SubmitButton } from "@/components/dashboard/SubmitButton";
+import Form from "next/form";
 
 const ACCOUNTS = [
   { key: "cash", label: "Cash" },
@@ -93,16 +95,16 @@ export default async function CloseAnalyticsPage({
         service income.
       </p>
 
-      <form method="get" className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-zinc-200 bg-white p-4">
+      <Form action="/dashboard/close/analytics" className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-zinc-200 bg-white p-4">
         <label className="text-sm text-zinc-600">
           From <input type="date" name="from" defaultValue={from} className="ml-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
         </label>
         <label className="text-sm text-zinc-600">
           To <input type="date" name="to" defaultValue={to} className="ml-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
         </label>
-        <button type="submit" className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
+        <SubmitButton className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
           Show
-        </button>
+        </SubmitButton>
         <div className="flex flex-wrap gap-2">
           {presets.map((p) => (
             <Link
@@ -120,7 +122,7 @@ export default async function CloseAnalyticsPage({
         <Link href={`/dashboard/close/history?from=${from}&to=${to}`} className="ml-auto text-sm font-medium text-brand-700 hover:underline">
           Day close report
         </Link>
-      </form>
+      </Form>
 
       {cur.days === 0 ? (
         <p className="mt-6 rounded-2xl bg-white p-8 text-center text-zinc-500 shadow-sm">
