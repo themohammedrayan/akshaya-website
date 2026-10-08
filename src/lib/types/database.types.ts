@@ -104,6 +104,117 @@ export type Database = {
           },
         ]
       }
+      enquiries: {
+        Row: {
+          created_at: string
+          follow_up_on: string | null
+          id: string
+          kind: string
+          last_contact_at: string
+          last_message: string | null
+          message_count: number
+          name: string | null
+          phone: string
+          request_id: string | null
+          service_id: string | null
+          source: string
+          status: string
+          updated_at: string
+          wa_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          follow_up_on?: string | null
+          id?: string
+          kind: string
+          last_contact_at?: string
+          last_message?: string | null
+          message_count?: number
+          name?: string | null
+          phone: string
+          request_id?: string | null
+          service_id?: string | null
+          source?: string
+          status?: string
+          updated_at?: string
+          wa_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          follow_up_on?: string | null
+          id?: string
+          kind?: string
+          last_contact_at?: string
+          last_message?: string | null
+          message_count?: number
+          name?: string | null
+          phone?: string
+          request_id?: string | null
+          service_id?: string | null
+          source?: string
+          status?: string
+          updated_at?: string
+          wa_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enquiries_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enquiries_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enquiry_calls: {
+        Row: {
+          called_at: string
+          called_by: string | null
+          enquiry_id: string
+          id: string
+          note: string | null
+          outcome: string
+        }
+        Insert: {
+          called_at?: string
+          called_by?: string | null
+          enquiry_id: string
+          id?: string
+          note?: string | null
+          outcome: string
+        }
+        Update: {
+          called_at?: string
+          called_by?: string | null
+          enquiry_id?: string
+          id?: string
+          note?: string | null
+          outcome?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enquiry_calls_called_by_fkey"
+            columns: ["called_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enquiry_calls_enquiry_id_fkey"
+            columns: ["enquiry_id"]
+            isOneToOne: false
+            referencedRelation: "enquiries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoice_counters: {
         Row: {
           fy: string
@@ -519,6 +630,7 @@ export type Database = {
           id: string
           name_en: string
           name_ml: string
+          online_enabled: boolean
           processing_time: string
           required_docs: Json
           show_on_website: boolean
@@ -540,6 +652,7 @@ export type Database = {
           id?: string
           name_en: string
           name_ml: string
+          online_enabled?: boolean
           processing_time: string
           required_docs?: Json
           show_on_website?: boolean
@@ -561,6 +674,7 @@ export type Database = {
           id?: string
           name_en?: string
           name_ml?: string
+          online_enabled?: boolean
           processing_time?: string
           required_docs?: Json
           show_on_website?: boolean
@@ -640,6 +754,57 @@ export type Database = {
           id?: string
           printed_at?: string
           record?: Json
+        }
+        Relationships: []
+      }
+      whatsapp_messages: {
+        Row: {
+          body: string | null
+          created_at: string
+          direction: string
+          id: string
+          type: string
+          wa_id: string
+          wa_message_id: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          direction: string
+          id?: string
+          type: string
+          wa_id: string
+          wa_message_id?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          direction?: string
+          id?: string
+          type?: string
+          wa_id?: string
+          wa_message_id?: string | null
+        }
+        Relationships: []
+      }
+      whatsapp_sessions: {
+        Row: {
+          data: Json
+          step: string
+          updated_at: string
+          wa_id: string
+        }
+        Insert: {
+          data?: Json
+          step?: string
+          updated_at?: string
+          wa_id: string
+        }
+        Update: {
+          data?: Json
+          step?: string
+          updated_at?: string
+          wa_id?: string
         }
         Relationships: []
       }

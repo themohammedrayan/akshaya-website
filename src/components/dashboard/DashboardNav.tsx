@@ -4,13 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { useTranslation } from "@/lib/i18n/useTranslation";
-import { ChartIcon, FileIcon, GlobeIcon, ListIcon, ReceiptIcon, SafeIcon, TagIcon, TrendIcon } from "./icons";
+import { ChartIcon, FileIcon, GlobeIcon, ListIcon, PhoneIcon, ReceiptIcon, SafeIcon, TagIcon, TrendIcon } from "./icons";
 
 const ITEMS = [
   { href: "/dashboard/invoices/new", label: "newBill", Icon: ReceiptIcon, primary: true },
   { href: "/dashboard/invoices", label: "bills", Icon: ListIcon },
   { href: "/dashboard/close", label: "dayClose", Icon: SafeIcon },
   { href: "/dashboard/close/analytics", label: "analytics", Icon: TrendIcon, ownerOnly: true },
+  { href: "/dashboard/followups", label: "followups", Icon: PhoneIcon, badge: true },
   { href: "/dashboard", label: "requests", Icon: GlobeIcon },
   { href: "/dashboard/reports", label: "reports", Icon: ChartIcon, ownerOnly: true },
   { href: "/dashboard/prices", label: "prices", Icon: TagIcon, ownerOnly: true },
@@ -28,13 +29,14 @@ function isActive(pathname: string, href: string): boolean {
   return pathname.startsWith(href);
 }
 
-export function DashboardNav({ isOwner }: { isOwner: boolean }) {
+/** followUpCount: WhatsApp enquiries needing a call now (new + due today + overdue). */
+export function DashboardNav({ isOwner, followUpCount = 0 }: { isOwner: boolean; followUpCount?: number }) {
   const pathname = usePathname();
   const { t } = useTranslation();
 
   return (
     <nav className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
-      {ITEMS.filter((item) => !item.ownerOnly || isOwner).map(({ href, label, Icon, primary }) => {
+      {ITEMS.filter((item) => !item.ownerOnly || isOwner).map(({ href, label, Icon, primary, badge }) => {
         const active = isActive(pathname, href);
         return (
           <Link
@@ -53,6 +55,9 @@ export function DashboardNav({ isOwner }: { isOwner: boolean }) {
           >
             <Icon className="h-5 w-5" />
             {t(`billing.nav.${label}`)}
+            {badge && followUpCount > 0 && (
+              <span className="rounded-full bg-red-600 px-2 py-0.5 text-xs font-bold text-white">{followUpCount}</span>
+            )}
           </Link>
         );
       })}

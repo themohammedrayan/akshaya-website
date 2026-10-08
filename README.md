@@ -177,6 +177,16 @@ account, top expenses and billing coverage (billed ÷ shop made). Charts are pla
 page shows bills only. Migrations: `20261007000027_day_closing.sql`,
 `20261008000028_day_close_register.sql`.
 
+## WhatsApp bot + follow-ups
+
+A Malayalam-only WhatsApp bot (`src/app/api/whatsapp/route.ts`, logic in `src/lib/whatsapp/`)
+shows customers each service's required documents/fee and takes "call me" requests; those and
+any free-text/voice messages become **enquiries** that staff call back from
+`/dashboard/followups` (shared list, call log, follow-up dates, nav badge). Info + callback only
+for now - no online applications or status check. Setup steps (Meta app, env vars, webhook) and
+details: [`docs/WHATSAPP_BOT.md`](docs/WHATSAPP_BOT.md). Migration:
+`20261009000029_whatsapp_followups.sql`.
+
 ## i18n
 
 Simple dictionary approach (`src/lib/i18n/en.json` / `ml.json`) + a cookie-persisted React
@@ -233,8 +243,9 @@ rely on.
   post-submit window (`status = 'submitted'`, request created within the last hour). If staff
   need a customer to send a document later, there's no flow for that yet - known gap, not
   silently decided either way.
-- Automated WhatsApp notifications via a template-based provider (the dashboard's "Message
-  customer" button, which opens a pre-filled `wa.me` link for manual sending, is the stopgap).
+- Automated WhatsApp status notifications ("ready for collection") - needs an approved utility
+  template on the bot's number; the dashboard's "Message customer" `wa.me` button is the stopgap.
+- Online applications through the WhatsApp bot (`services.online_enabled` is reserved for it).
 - Services catalog admin UI in the dashboard (currently managed via `seed.sql` + Studio).
 - Online fee payment (Phase 2).
 
