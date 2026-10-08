@@ -144,7 +144,8 @@
       "printedForms": "Printed forms",
       "logout": "Log out",
       "dayClose": "Day close",
-      "analytics": "Analytics"
+      "analytics": "Analytics",
+      "followups": "Follow-ups"
     },
     "newBill": {
       "search": "Search service…",
@@ -333,5 +334,40 @@
     "n1": "Start your certificate request online and track it with your code.",
     "n2": "Bring originals and a copy of every document listed on the service page.",
     "n3": "Questions? Message us on WhatsApp for quick help."
+  },
+  "followups": {
+    "title": "WhatsApp follow-ups",
+    "subtitle": "Customers who asked for a call back or messaged the WhatsApp bot.",
+    "tabNew": "New",
+    "tabToday": "Today",
+    "tabOverdue": "Overdue",
+    "tabUpcoming": "Later",
+    "tabAll": "All",
+    "empty": "Nothing here.",
+    "call": "Call",
+    "whatsapp": "WhatsApp",
+    "kindCallback": "Asked for a call",
+    "kindMessage": "Sent a message",
+    "noService": "No service chosen",
+    "messages": "{count} messages",
+    "firstContact": "First contact",
+    "lastContact": "Last contact",
+    "followUpOn": "Call on {date}",
+    "note": "Note (optional)",
+    "callAgainOn": "Call again on",
+    "outcomeTalked": "Talked",
+    "outcomeNoAnswer": "No answer",
+    "outcomeCallAgain": "Call again",
+    "outcomeVisited": "Came in",
+    "outcomeNotInterested": "Not interested",
+    "history": "Call history",
+    "statusNew": "New",
+    "statusFollowUp": "Follow-up",
+    "statusVisited": "Came in",
+    "statusClosed": "Closed",
+    "filterDate": "Date",
+    "filter": "Filter",
+    "clear": "Clear",
+    "saved": "Saved"
   }
 }
