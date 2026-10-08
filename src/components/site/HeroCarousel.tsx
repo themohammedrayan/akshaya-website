@@ -118,7 +118,7 @@ export function HeroCarousel() {
         type="button"
         onClick={() => go(index - 1)}
         aria-label={t("hero.prev")}
-        className="absolute left-2 top-1/2 hidden -translate-y-1/2 md:left-16 rounded-full bg-black/20 p-2 text-white hover:bg-black/40 sm:block"
+        className="absolute left-2 top-1/2 hidden -translate-y-1/2 xl:left-16 rounded-full bg-black/20 p-2 text-white hover:bg-black/40 sm:block"
       >
         <ChevronLeftIcon className="h-7 w-7" />
       </button>

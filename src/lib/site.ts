@@ -8,9 +8,10 @@
  * badge is shown in its place.
  */
 export const PARTNERS: { name: string; short: string; href: string; src: string | null }[] = [
-  { name: "Government of Kerala", short: "Govt. of Kerala", href: "https://kerala.gov.in", src: null },
-  { name: "Kerala State IT Mission", short: "KSITM", href: "https://itmission.kerala.gov.in", src: null },
-  { name: "Common Service Centres", short: "CSC", href: "https://csc.gov.in", src: null },
+  { name: "Government of Kerala", short: "Govt. of Kerala", href: "https://kerala.gov.in", src: "/partners/kerala-govt.webp" },
+  { name: "Kerala State IT Mission", short: "KSITM", href: "https://itmission.kerala.gov.in", src: "/partners/ksitm.webp" },
+  { name: "Kerala IT", short: "Kerala IT", href: "https://www.keralait.org", src: "/partners/kerala-it.webp" },
+  { name: "Common Service Centres", short: "CSC", href: "https://csc.gov.in", src: "/partners/csc.webp" },
 ];
 
 /** Official portals listed in the footer. */
@@ -35,7 +36,7 @@ export const HERO_SLIDES: {
   image: string | null;
   cta: { href: string; labelKey: string };
 }[] = [
-  { key: "welcome", image: null, cta: { href: "/request", labelKey: "landing.ctaStart" } },
-  { key: "edistrict", image: null, cta: { href: "/services#e-district", labelKey: "hero.ctaServices" } },
+  { key: "welcome", image: "/hero/akshaya-centres.webp", cta: { href: "/request", labelKey: "landing.ctaStart" } },
+  { key: "edistrict", image: "/hero/akshaya-staff.webp", cta: { href: "/services#e-district", labelKey: "hero.ctaServices" } },
   { key: "aadhaar", image: null, cta: { href: "/services#aadhaar", labelKey: "hero.ctaServices" } },
 ];
