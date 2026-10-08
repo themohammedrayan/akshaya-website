@@ -23,7 +23,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Akshaya e-Centre MPM 353 | Thelakkad",
+  title: { default: "Akshaya Thelakkad", template: "%s | Akshaya Thelakkad" },
   description:
     "e-District certificates, Aadhaar enrolment and government services — fees, processing time and documents required, all upfront.",
 };
