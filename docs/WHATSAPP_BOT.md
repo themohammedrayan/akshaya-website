@@ -93,7 +93,7 @@ apply and upload documents over WhatsApp). Switching to this bot:
    token the Edge Function uses (Supabase secret `WHATSAPP_ACCESS_TOKEN`).
 2. Check `GET /api/whatsapp?hub.mode=subscribe&hub.verify_token=<token>&hub.challenge=ok`
    returns `ok`.
-3. Step 8: change the Callback URL to `https://<site domain>/api/whatsapp` and verify. Rolling
+3. Step 8: change the Callback URL to `https://akshayatlkd.rivlo.live/api/whatsapp` and verify. Rolling
    back is just pointing it back at
    `https://ishxtpxlpqcuemlrnesp.supabase.co/functions/v1/whatsapp-bot`.
 4. Step 10, then once this bot has run for a while, delete the Edge Function and
