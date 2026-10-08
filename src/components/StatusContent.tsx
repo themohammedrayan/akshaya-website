@@ -5,20 +5,24 @@ import { useTranslation } from "@/lib/i18n/useTranslation";
 import { pickLang } from "@/lib/i18n/pickLang";
 import { buttonClasses } from "@/components/ui/button-styles";
 import { StatusBadge } from "@/components/StatusBadge";
+import { PageBanner } from "@/components/site/PageBanner";
 import { lookupStatus, type LookupStatusState } from "@/app/(public)/status/actions";
 
 const initialState: LookupStatusState = { status: "idle" };
 
-export function StatusContent() {
+export function StatusContent({ initialCode }: { initialCode?: string }) {
   const { t, lang } = useTranslation();
   const [state, formAction, pending] = useActionState(lookupStatus, initialState);
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-12 sm:px-6">
-      <h1 className="text-2xl font-bold text-zinc-900">{t("status.title")}</h1>
-      <p className="mt-2 text-zinc-600">{t("status.subtitle")}</p>
-
-      <form action={formAction} className="mt-8 space-y-5">
+    <div>
+      <PageBanner
+        title={t("status.title")}
+        subtitle={t("status.subtitle")}
+        crumbs={[{ href: "/", label: t("nav.home") }, { label: t("status.title") }]}
+      />
+      <div className="mx-auto max-w-lg px-4 py-10 sm:px-6">
+      <form action={formAction} className="space-y-5 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
         <div>
           <label htmlFor="trackingCode" className="block text-sm font-medium text-zinc-700">
             {t("status.trackingCodeLabel")}
@@ -28,6 +32,7 @@ export function StatusContent() {
             name="trackingCode"
             type="text"
             required
+            defaultValue={initialCode}
             placeholder="AKS-7F3K"
             className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 uppercase focus:border-brand-600 focus:outline-none"
           />
@@ -59,7 +64,7 @@ export function StatusContent() {
       </form>
 
       {state.status === "found" && (
-        <div className="mt-10 rounded-xl border border-zinc-200 p-6">
+        <div className="mt-8 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-zinc-500">{state.request.tracking_code}</p>
@@ -92,6 +97,7 @@ export function StatusContent() {
           )}
         </div>
       )}
+      </div>
     </div>
   );
 }

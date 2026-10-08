@@ -8,6 +8,7 @@ import { buttonClasses } from "@/components/ui/button-styles";
 import { trackIntakeSubmit } from "@/lib/analytics";
 import { submitRequest, type SubmitRequestState } from "@/app/(public)/request/actions";
 import { DocumentUpload } from "@/components/DocumentUpload";
+import { PageBanner } from "@/components/site/PageBanner";
 import type { Tables } from "@/lib/types/database.types";
 
 type Service = Pick<Tables<"services">, "id" | "slug" | "name_en" | "name_ml" | "required_docs">;
@@ -45,7 +46,7 @@ export function IntakeContent({
       : [];
 
     return (
-      <div className="mx-auto max-w-lg px-4 py-16 text-center sm:px-6">
+      <div className="mx-auto my-12 max-w-lg rounded-xl border border-zinc-200 bg-white px-4 py-10 text-center shadow-sm sm:px-8">
         <h1 className="text-2xl font-bold text-zinc-900">{t("intake.successTitle")}</h1>
         <p className="mt-2 text-zinc-600">{t("intake.successMessage")}</p>
         <div className="mt-6 flex items-center justify-center gap-3">
@@ -90,11 +91,14 @@ export function IntakeContent({
   }
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-12 sm:px-6">
-      <h1 className="text-2xl font-bold text-zinc-900">{t("intake.title")}</h1>
-      <p className="mt-2 text-zinc-600">{t("intake.subtitle")}</p>
-
-      <form action={formAction} className="mt-8 space-y-5">
+    <div>
+      <PageBanner
+        title={t("intake.title")}
+        subtitle={t("intake.subtitle")}
+        crumbs={[{ href: "/", label: t("nav.home") }, { label: t("intake.title") }]}
+      />
+      <div className="mx-auto max-w-lg px-4 py-10 sm:px-6">
+      <form action={formAction} className="space-y-5 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
         <div>
           <label htmlFor="serviceId" className="block text-sm font-medium text-zinc-700">
             {t("intake.serviceLabel")}
@@ -154,6 +158,7 @@ export function IntakeContent({
           {pending ? t("intake.submitting") : t("intake.submit")}
         </button>
       </form>
+      </div>
     </div>
   );
 }

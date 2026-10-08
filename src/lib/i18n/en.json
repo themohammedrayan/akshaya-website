@@ -5,7 +5,10 @@
     "checkStatus": "Check Status",
     "login": "Staff Login",
     "dashboard": "Dashboard",
-    "logout": "Log out"
+    "logout": "Log out",
+    "home": "Home",
+    "contact": "Contact us",
+    "menu": "Menu"
   },
   "landing": {
     "title": "Your one-stop center for government certificates & Aadhaar services",
@@ -42,7 +45,20 @@
     "faqQ4": "Do you offer Aadhaar services?",
     "faqA4": "Yes, including new enrolment, updates/corrections, and appointment booking.",
     "faqQ5": "Is the website available in Malayalam?",
-    "faqA5": "Yes — use the language toggle at the top of any page to switch between English and Malayalam."
+    "faqA5": "Yes — use the language toggle at the top of any page to switch between English and Malayalam.",
+    "aboutTitle": "Empowering Kerala",
+    "aboutBody": "Akshaya began in Malappuram in 2002 to bring the benefits of technology to every citizen. Today our centre is the front door for e-District certificates, Aadhaar and many other government services.",
+    "trackTitle": "Track your application",
+    "trackBody": "Enter the tracking code you received when you submitted your request.",
+    "faqShort": "F.A.Q",
+    "faqTeaser": "Not sure which documents to bring or how long it will take? Your question has probably already been answered.",
+    "categoriesTitle": "What we do",
+    "serviceCount": "{count} services",
+    "statServices": "Services offered",
+    "statSince": "Akshaya serving since",
+    "statLanguages": "English & Malayalam",
+    "statCentre": "Our centre code",
+    "centreIdLabel": "Centre"
   },
   "services": {
     "pageTitle": "Services",
@@ -58,7 +74,8 @@
     "startRequestFor": "Start a request for this service"
   },
   "serviceDetail": {
-    "back": "Back to services"
+    "back": "Back to services",
+    "whatsappAbout": "Hi, I have a question about"
   },
   "intake": {
     "title": "Start a Request",
@@ -108,7 +125,10 @@
     "hoursLabel": "Hours",
     "addressLabel": "Address",
     "phoneLabel": "Phone",
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "about": "An Akshaya e-Centre under the Kerala State IT Mission: government, Aadhaar and online services for Thelakkad and nearby areas.",
+    "quickLinks": "Quick links",
+    "officialPortals": "Official portals"
   },
   "language": {
     "english": "English",
@@ -292,5 +312,26 @@
       "billedInfo": "Bills recorded over these days: {amount} (for info only — not every payment may be billed).",
       "analytics": "Analytics"
     }
+  },
+  "hero": {
+    "label": "Highlights",
+    "prev": "Previous slide",
+    "next": "Next slide",
+    "ctaServices": "See services",
+    "welcomeKicker": "Welcome to",
+    "welcomeTitle": "Akshaya e-Centre, Thelakkad",
+    "welcomeBody": "Your window of opportunities: government certificates, Aadhaar and online services, all under one roof in Malappuram.",
+    "edistrictKicker": "e-District services",
+    "edistrictTitle": "Certificates without the runaround",
+    "edistrictBody": "Income, community, nativity and more. Know the fee, time and documents before you start.",
+    "aadhaarKicker": "Aadhaar services",
+    "aadhaarTitle": "Enrolment, update & correction",
+    "aadhaarBody": "New Aadhaar, mobile/address updates and biometric updates, handled by trained staff."
+  },
+  "notices": {
+    "title": "Latest updates",
+    "n1": "Start your certificate request online and track it with your code.",
+    "n2": "Bring originals and a copy of every document listed on the service page.",
+    "n3": "Questions? Message us on WhatsApp for quick help."
   }
 }

@@ -1,13 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Inter, Noto_Sans_Malayalam } from "next/font/google";
 import { cookies } from "next/headers";
 import { LanguageProvider, type Lang } from "@/lib/i18n/LanguageProvider";
 import { Analytics } from "@/components/Analytics";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+});
+
+// Malayalam glyphs aren't in Inter; the browser falls through to this for them.
+const notoMalayalam = Noto_Sans_Malayalam({
+  variable: "--font-malayalam",
+  subsets: ["malayalam"],
 });
 
 const geistMono = Geist_Mono({
@@ -16,7 +22,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Akshaya e-Center",
+  title: "Akshaya e-Centre MPM 353 | Thelakkad",
   description:
     "e-District certificates, Aadhaar enrolment and government services — fees, processing time and documents required, all upfront.",
 };
@@ -32,7 +38,7 @@ export default async function RootLayout({
   return (
     <html
       lang={initialLang}
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${notoMalayalam.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <LanguageProvider initialLang={initialLang}>{children}</LanguageProvider>
