@@ -199,7 +199,7 @@ rely on.
 ## Known placeholders to replace before launch
 
 - `.env.local` center contact info (`NEXT_PUBLIC_WHATSAPP_NUMBER`, `NEXT_PUBLIC_CENTER_PHONE`,
-  `NEXT_PUBLIC_CENTER_ADDRESS`, `NEXT_PUBLIC_CENTER_HOURS`) are placeholder values - update to
+  `NEXT_PUBLIC_CENTER_ADDRESS`) are placeholder values - update to
   match the Google Business Profile exactly (brief §7: NAP consistency matters for ads/SEO).
 - `supabase/seed.sql` fees and processing times are placeholders pending confirmation against
   the actual current government fee schedule.

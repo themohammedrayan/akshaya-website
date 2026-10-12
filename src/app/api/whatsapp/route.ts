@@ -170,19 +170,19 @@ async function processMessage(admin: Admin, message: WaMessage, profileName: str
 async function loadServices(admin: Admin): Promise<BotService[]> {
   const { data, error } = await admin
     .from("services")
-    .select("id, name_ml, category, fee, processing_time, required_docs")
+    .select("id, name_ml, category, processing_time, required_docs")
     .eq("active", true)
     .eq("show_on_website", true)
     .order("sort_order")
     .order("name_ml");
   if (error) throw error;
-  return (data ?? []).map((s) => ({ ...s, fee: Number(s.fee) }));
+  return data ?? [];
 }
 
 function centreInfo() {
   return {
     address: process.env.NEXT_PUBLIC_CENTER_ADDRESS || CENTER.addressLines.join(", "),
-    hours: process.env.NEXT_PUBLIC_CENTER_HOURS || undefined,
+    hours: CENTER.hours,
     phone: process.env.NEXT_PUBLIC_CENTER_PHONE || CENTER.phone,
   };
 }

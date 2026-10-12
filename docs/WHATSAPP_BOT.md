@@ -8,22 +8,23 @@ them which documents to bring and lets them ask for a call. Staff work the resul
 ## What the customer sees
 
 ```
-hi / any greeting   → welcome + [ സേവനങ്ങൾ ] [ എന്നെ വിളിക്കൂ ]
+hi / any greeting   → welcome + [ സേവനങ്ങൾ ] [ ഞങ്ങളെ വിളിക്കൂ ]
 സേവനങ്ങൾ            → list: സർട്ടിഫിക്കറ്റുകൾ / ആധാർ സേവനങ്ങൾ / മറ്റ് സേവനങ്ങൾ
 category            → list of its services (9 per page + "കൂടുതൽ സേവനങ്ങൾ…")
-service             → required documents, fee, time, address/hours/phone
-                      + [ എന്നെ വിളിക്കൂ ] [ മറ്റൊരു സേവനം ]
-എന്നെ വിളിക്കൂ       → "we'll call you"  → follow-up logged (with the service, if one was open)
+service             → required documents, time, address/hours/phone (no fees - they vary)
+                      + [ ഞങ്ങളെ വിളിക്കൂ ] [ മറ്റൊരു സേവനം ]
+ഞങ്ങളെ വിളിക്കൂ      → "we'll call you"  → follow-up logged (with the service, if one was open)
 anything else       → typed question, voice note, photo…: follow-up logged with the message,
                       "we'll call you" + menu. Further messages within 10 minutes are logged
                       silently (no repeated auto-reply).
 ```
 
-- The service list, documents, fee and processing time come straight from the `services` table
+- The service list, documents and processing time come straight from the `services` table
   (rows with `active` and `show_on_website`, ordered by `sort_order`) - change them on the
   Prices page / in Studio and the bot follows. Documents use the `ml` text of `required_docs`.
-- Address / hours / phone come from `NEXT_PUBLIC_CENTER_ADDRESS`, `NEXT_PUBLIC_CENTER_HOURS`,
-  `NEXT_PUBLIC_CENTER_PHONE` (falling back to `src/lib/center.ts`).
+- Fees are not sent (they vary); customers are asked to call or visit.
+- Hours come from `CENTER.hours` in `src/lib/center.ts`. Address / phone come from
+  `NEXT_PUBLIC_CENTER_ADDRESS`, `NEXT_PUBLIC_CENTER_PHONE` (falling back to `src/lib/center.ts`).
 - All bot wording is in `src/lib/whatsapp/messages.ts`. **Have a native speaker review it.**
 
 ## Follow-ups (staff)
@@ -73,7 +74,7 @@ charge for. No message templates are used. Running cost ≈ ₹0 (plus the SIM).
 9. **Privacy policy + publish** - App settings → *Basic* → Privacy policy URL
    `https://akshayatlkd.rivlo.live/privacy` → save → **Publish** the app. Until it is
    published, Meta only sends dashboard test webhooks, not real customer messages.
-10. **Test** - send "hi" to the number from a phone, walk the menu, tap എന്നെ വിളിക്കൂ, and check
+10. **Test** - send "hi" to the number from a phone, walk the menu, tap ഞങ്ങളെ വിളിക്കൂ, and check
     Dashboard → Follow-ups → New.
 11. **Business verification** - if the WhatsApp account shows as restricted, upload the business
     certificate in Business Support Home (business.facebook.com/business-support-home) and
