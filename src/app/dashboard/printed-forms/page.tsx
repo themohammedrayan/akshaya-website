@@ -30,10 +30,22 @@ export default async function PrintedFormsPage({
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-zinc-900">UIDAI Printed Forms</h1>
-      <p className="mt-1 text-sm text-zinc-500">
-        Record-keeping log of Aadhaar enrolment forms printed via the UIDAI overlay printer.
-      </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold text-zinc-900">UIDAI Printed Forms</h1>
+          <p className="mt-1 text-sm text-zinc-500">
+            Record-keeping log of Aadhaar enrolment forms printed via the UIDAI overlay printer.
+          </p>
+        </div>
+        <a
+          href="/uidai-enr-form-printer/index.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800"
+        >
+          Open form printer ↗
+        </a>
+      </div>
 
       <Form action="/dashboard/printed-forms" className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-zinc-200 bg-white p-4">
         <input type="date" name="date" defaultValue={filters.date ?? ""} className="rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
