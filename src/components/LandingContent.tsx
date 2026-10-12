@@ -63,7 +63,7 @@ function SectionHeading({ title, subtitle }: { title: string; subtitle?: string 
 export function LandingContent({ services }: { services: Service[] }) {
   const { t, lang } = useTranslation();
   const phone = process.env.NEXT_PUBLIC_CENTER_PHONE || CENTER.phone;
-  const hours = process.env.NEXT_PUBLIC_CENTER_HOURS;
+  const hours = CENTER.hours;
   const address = process.env.NEXT_PUBLIC_CENTER_ADDRESS || CENTER.addressLines.join(", ");
   const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
 

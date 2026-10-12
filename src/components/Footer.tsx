@@ -22,7 +22,7 @@ export function Footer() {
 
   const phone = process.env.NEXT_PUBLIC_CENTER_PHONE || CENTER.phone;
   const address = process.env.NEXT_PUBLIC_CENTER_ADDRESS || CENTER.addressLines.join(", ");
-  const hours = process.env.NEXT_PUBLIC_CENTER_HOURS;
+  const hours = CENTER.hours;
 
   return (
     <footer className="mt-16 bg-brand-900 text-sm text-white/75">

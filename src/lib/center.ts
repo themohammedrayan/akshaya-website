@@ -5,4 +5,5 @@ export const CENTER = {
   cscId: "521143620014",
   addressLines: ["THELAKKAD, THELAKKAD POST", "MALAPPURAM DT - 679325"],
   phone: "7012448139",
+  hours: "Mon-Sat 10:00 AM - 6:00 PM",
 } as const;

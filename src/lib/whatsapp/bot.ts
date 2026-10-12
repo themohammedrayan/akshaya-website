@@ -5,11 +5,11 @@ import { GREETINGS, ML } from "./messages";
 // handleMessage(), then persists the result and sends the replies.
 //
 // Flow (Malayalam only, info + callback):
-//   greeting            -> welcome + [സേവനങ്ങൾ] [എന്നെ വിളിക്കൂ]
+//   greeting            -> welcome + [സേവനങ്ങൾ] [ഞങ്ങളെ വിളിക്കൂ]
 //   സേവനങ്ങൾ            -> list of categories
 //   category            -> list of its services (9 per page + "more")
-//   service             -> documents / fee / time / centre + [എന്നെ വിളിക്കൂ] [മറ്റൊരു സേവനം]
-//   എന്നെ വിളിക്കൂ       -> callback enquiry logged, confirmation
+//   service             -> documents / time / centre + [ഞങ്ങളെ വിളിക്കൂ] [മറ്റൊരു സേവനം]
+//   ഞങ്ങളെ വിളിക്കൂ      -> callback enquiry logged, confirmation
 //   anything else       -> message enquiry logged, "we'll call you" + menu
 //
 // Button/list ids carry everything they need (service id, category, page),
@@ -31,7 +31,6 @@ export type BotService = {
   id: string;
   name_ml: string;
   category: string;
-  fee: number;
   processing_time: string;
   required_docs: unknown;
 };
@@ -199,13 +198,12 @@ function serviceList(services: BotService[], category: string, page: number): Re
   const fitsOnOnePage = page === 0 && inCategory.length <= SERVICES_PER_PAGE + 1;
   const pageItems = fitsOnOnePage ? inCategory : inCategory.slice(start, start + SERVICES_PER_PAGE);
   const rows: Extract<Reply, { type: "list" }>["rows"] = pageItems.map((s) => {
-    const fee = s.fee > 0 ? `₹${formatFee(s.fee)}` : undefined;
     // Row titles are cut at 24 characters; long Malayalam names go in full on the description line.
     const nameTooLong = Array.from(s.name_ml).length > LIST_TITLE_MAX;
     return {
       id: `svc:${s.id}`,
       title: s.name_ml,
-      description: nameTooLong ? [s.name_ml, fee].filter(Boolean).join(" · ") : fee,
+      description: nameTooLong ? s.name_ml : undefined,
     };
   });
   if (!fitsOnOnePage && start + SERVICES_PER_PAGE < inCategory.length) {
@@ -229,8 +227,7 @@ function serviceDetail(service: BotService, centre: CentreInfo): Reply[] {
   } else {
     lines.push(ML.docsUnknown);
   }
-  lines.push("", service.fee > 0 ? ML.fee(formatFee(service.fee)) : ML.feeAtCentre);
-  if (service.processing_time) lines.push(ML.time(service.processing_time));
+  if (service.processing_time) lines.push("", ML.time(service.processing_time));
   lines.push("", ML.visitNote);
 
   const body = withCentre(lines.join("\n"), centre, { address: true, hours: true, phone: true });
@@ -261,10 +258,6 @@ export function requiredDocsMl(requiredDocs: unknown): string[] {
   return requiredDocs
     .map((d) => (d && typeof d === "object" ? ((d as { ml?: string; en?: string }).ml || (d as { en?: string }).en) : null))
     .filter((d): d is string => typeof d === "string" && d.trim().length > 0);
-}
-
-function formatFee(fee: number): string {
-  return Number.isInteger(fee) ? String(fee) : fee.toFixed(2);
 }
 
 export function isGreeting(text: string): boolean {
