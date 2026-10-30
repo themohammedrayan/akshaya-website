@@ -37,7 +37,10 @@ src/
                    locale-prefixed routes - see brief §6 for why)
     whatsappTemplates.ts  buildStatusMessage() + phone formatting for the dashboard's
                    "Message customer" button - deliberately minimal, not a templating system
+    pvc-cards/    Millimetre layout maths, image rasterising, PDF output and the localStorage
+                   store for the PVC ID card printer (see below)
     types/        Generated Supabase types (database.types.ts)
+scripts/          check-pvc-layout.mts (mm maths), check-pvc-browser.mts (headless Chrome)
 ```
 
 ## Local setup
@@ -177,6 +180,56 @@ account, top expenses and billing coverage (billed ÷ shop made). Charts are pla
 page shows bills only. Migrations: `20261007000027_day_closing.sql`,
 `20261008000028_day_close_register.sql`.
 
+## PVC ID cards (staff dashboard)
+
+`/dashboard/pvc-cards` prints card fronts and backs onto a sheet at **exact physical size**, so a
+CR80 card measures 85.60 x 54.00 mm on paper, and it remembers which slots of a sheet have already
+been printed on so the leftover paper gets reused instead of binned.
+
+**How it works**
+
+- The operator adds a photo of the front and (optionally) the back, from the gallery or the phone
+  camera. **The photos never leave the device** - nothing is uploaded, and the PDF is assembled in
+  the browser with `pdf-lib`. These are identity documents, so there is no server round trip at all.
+- The sheet is divided into a grid of card-sized slots. `src/lib/pvc-cards/layout.ts` does the
+  millimetre arithmetic: how many columns and rows fit inside the margins, where the grid sits for
+  each anchor (Bottom / Top / Left / Right), and which free slots the next cards go in. Front and
+  back go side by side as a pair, so a blank A4 holds 5 pairs of CR80 cards.
+- The PDF is generated at the paper's exact size (`pdf-lib`, dynamically imported so its ~525 KB
+  chunk only loads when the operator asks for a PDF). **It never uses `window.print()`** - the same
+  trap the invoice bill avoids, because the browser's print scaling is what makes cards come out
+  the wrong size.
+- The preview canvas and the PDF both rasterise through the same `drawImageInto()`
+  (`src/lib/pvc-cards/raster.ts`), so the crop, fit mode, rotation and mirror on screen are exactly
+  what gets printed. Cards are rasterised at the physical size and DPI (`85.6mm / 25.4 * 300` =
+  1011 px wide for CR80), not at the photo's native resolution.
+- **Used-slot tracking** is the point of the tool: after printing, the operator marks the slots as
+  used, and the next job lands in the free space on the same physical sheet. Slots can also be
+  toggled by clicking the preview, for when the paper and the tool disagree.
+- **Printer calibration** (X/Y offset in mm and a scale factor) is applied at export only, because
+  it is a property of the printer next to the counter rather than of the job. "Print a test sheet"
+  prints a 10 mm grid, a crosshair and a 150 mm bar to measure with a ruler. Chrome's default
+  "Fit to printable area" shifts the page by a few millimetres, which is exactly what this
+  corrects for.
+
+**State** lives in `localStorage` (`pvc_cards_sheets_v1`, `pvc_cards_settings_v1`) - sheets, used
+slots and calibration. Nothing is stored server-side, so the sheets a given counter has used are
+only visible on that browser. The state is read through `useSyncExternalStore`
+(`src/lib/pvc-cards/storage.ts`), not a `useEffect` + `setState` pair, so the server and the browser
+render the same markup.
+
+**Layout**
+
+```
+src/lib/pvc-cards/       layout.ts (mm maths), raster.ts (crop/fit/rotate/mirror),
+                          pdf.ts (pdf-lib), preview.ts (the canvas preview),
+                          storage.ts (localStorage), presets.ts, types.ts
+src/components/dashboard/pvc-cards/   the React side
+```
+
+Both counter tools - this one and the UIDAI overlay printer - are reachable from the **Tools**
+dropdown in the dashboard header, next to the language switch (`src/components/dashboard/ToolsMenu.tsx`).
+
 ## WhatsApp bot + follow-ups
 
 A Malayalam-only WhatsApp bot (`src/app/api/whatsapp/route.ts`, logic in `src/lib/whatsapp/`)
@@ -210,6 +263,20 @@ rely on.
 ## Testing
 
 - `npm run lint` / `npx tsc --noEmit` / `npm run build` all pass.
+- `npm run check:pvc` runs the PVC card printer's millimetre arithmetic against the real
+  `layout.ts`: grid dimensions, that no card ever crosses the margin band, that no two cards
+  overlap, that used slots are skipped, and that the PDF page measures exactly 210 x 297 mm.
+- `npm run check:pvc:browser` runs the image pipeline in headless Chrome (a canvas is needed, so
+  it cannot run under plain Node) and asserts on the pixels: the raster is exactly 1011 x 638 px at
+  300 dpi, mirroring swaps left and right, a 90 degree turn moves the quadrants the right way
+  round, and "contain" leaves a white bar while "cover" does not. It then parses the generated
+  PDF's content stream back and checks that every card was drawn at its planned position and size,
+  and that the photo is embedded once and reused for every copy.
+  - This found a real bug: the rotation was silently not applied, because mapping a source
+    rectangle back to the original image cannot express a rotation. It now uses a canvas transform.
+- `npm run check:tools` renders the dashboard header's Tools dropdown in headless Chrome, with the
+  app's real stylesheet, and checks that it opens, that both tools are linked, and that clicking
+  away closes it again. Screenshots land in a temp folder.
 - Full data-path (tracking code generation, status trigger, all RPCs, RLS enforcement for
   `anon` including negative cases) was verified directly against the live Supabase project via
   SQL. Two real bugs were found and fixed this way before they'd have hit production:
