@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { Spinner } from "./SubmitButton";
-import { ChartIcon, FileIcon, GlobeIcon, ListIcon, PhoneIcon, ReceiptIcon, SafeIcon, TagIcon, TrendIcon } from "./icons";
+import { ChartIcon, FileIcon, GlobeIcon, IdCardIcon, ListIcon, PhoneIcon, ReceiptIcon, SafeIcon, TagIcon, TrendIcon } from "./icons";
 
 const ITEMS = [
   { href: "/dashboard/invoices/new", label: "newBill", Icon: ReceiptIcon, primary: true },
@@ -18,6 +18,7 @@ const ITEMS = [
   { href: "/dashboard/reports", label: "reports", Icon: ChartIcon, ownerOnly: true },
   { href: "/dashboard/prices", label: "prices", Icon: TagIcon, ownerOnly: true },
   { href: "/dashboard/printed-forms", label: "printedForms", Icon: FileIcon },
+  { href: "/dashboard/pvc-cards", label: "pvcCards", Icon: IdCardIcon },
 ];
 
 function isActive(pathname: string, href: string): boolean {

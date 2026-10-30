@@ -145,7 +145,8 @@
       "logout": "Log out",
       "dayClose": "Day close",
       "analytics": "Analytics",
-      "followups": "Follow-ups"
+      "followups": "Follow-ups",
+      "pvcCards": "PVC cards"
     },
     "newBill": {
       "search": "Search service…",
@@ -312,6 +313,104 @@
       "transfersNote": "Cash → Bank and wallet top-ups only move money between places, so they don't count.",
       "billedInfo": "Bills recorded over these days: {amount} (for info only — not every payment may be billed).",
       "analytics": "Analytics"
+    }
+  },
+  "pvcCards": {
+    "pageTitle": "PVC ID cards",
+    "pageSubtitle": "Print card fronts and backs on one sheet, then reuse the paper that is left.",
+    "photos": {
+      "title": "Photos",
+      "front": "Front",
+      "back": "Back",
+      "choose": "Choose photo",
+      "camera": "Take photo",
+      "drop": "Drop a photo here, or pick one below.",
+      "clear": "Remove",
+      "rotate": "Rotate",
+      "mirror": "Mirror",
+      "mirrorBoth": "Mirror both sides",
+      "privacy": "The photos stay on this device. Nothing is uploaded."
+    },
+    "card": {
+      "title": "Card size",
+      "preset": "Size",
+      "width": "Width (mm)",
+      "height": "Height (mm)"
+    },
+    "page": {
+      "title": "Sheet size",
+      "preset": "Paper",
+      "orientation": "Orientation",
+      "portrait": "Portrait",
+      "landscape": "Landscape",
+      "margin": "Margin (mm)",
+      "gap": "Gap (mm)"
+    },
+    "layout": {
+      "title": "Layout",
+      "copies": "Copies",
+      "fit": "Fit",
+      "fitCover": "Cover",
+      "fitContain": "Contain",
+      "fitStretch": "Stretch",
+      "anchor": "Fill from",
+      "anchorBottom": "Bottom",
+      "anchorTop": "Top",
+      "anchorLeft": "Left",
+      "anchorRight": "Right"
+    },
+    "quality": {
+      "title": "Quality",
+      "dpi": "Resolution",
+      "dpi300": "300 dpi",
+      "dpi600": "600 dpi",
+      "autoRotate": "Turn photos the right way up",
+      "lossless": "Lossless PNG",
+      "cropMarks": "Crop marks"
+    },
+    "print": {
+      "instructionsTitle": "Print at 100% / Actual size",
+      "instructions": "Margins: None. Chrome's \"Fit to printable area\" drifts the cards by several millimetres, so turn it off.",
+      "busy": "Preparing...",
+      "prepare": "Prepare PDF",
+      "download": "Download PDF",
+      "markUsedQuestion": "Mark {count} slots on this sheet as used?",
+      "markUsedYes": "Yes, mark used",
+      "markUsedNo": "Not now",
+      "marked": "Marked {count} slots as used.",
+      "overflow": "Only {placed} of {requested} fit on this sheet. The rest were left out.",
+      "stale": "The settings changed since this PDF was made. Prepare it again.",
+      "testPreview": "Test sheet preview",
+      "pdfPreview": "PDF preview",
+      "printNow": "Print now"
+    },
+    "preview": {
+      "title": "Sheet preview",
+      "summary": "{cols} x {rows} slots - {placed} of {requested} cards on this sheet",
+      "hint": "Tap a slot to mark it as used or free."
+    },
+    "sheets": {
+      "title": "Sheets",
+      "newSheet": "New sheet",
+      "fill": "{used} of {total} slots used ({percent}%)",
+      "current": "Current",
+      "reset": "Clear the used slots on this sheet",
+      "resetConfirm": "Clear the used slots on this sheet?",
+      "calibrationTitle": "Printer calibration",
+      "calibrationHint": "Print a test sheet, measure it with a ruler, and correct these if the cards come out the wrong size.",
+      "offsetX": "X offset (mm)",
+      "offsetY": "Y offset (mm)",
+      "scale": "Scale",
+      "testGrid": "Print a test sheet",
+      "hint": "Sheets are remembered on this device only."
+    },
+    "error": {
+      "noPhoto": "Add a photo of the front of the card first.",
+      "noSpace": "There is no free space left on this sheet. Add a new sheet or clear some slots.",
+      "generic": "Something went wrong. Please try again.",
+      "geometryChange": "Changing the size clears the used slots on this sheet. Continue?",
+      "notAnImage": "That file is not an image.",
+      "cannotRead": "That image could not be opened."
     }
   },
   "hero": {
