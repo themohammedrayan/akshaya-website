@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "check:pvc": "tsx scripts/check-pvc-layout.mts",
-    "check:pvc:browser": "tsx scripts/check-pvc-browser.mts"
+    "check:pvc:browser": "tsx scripts/check-pvc-browser.mts",
+    "check:tools": "tsx scripts/check-tools-menu.mts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

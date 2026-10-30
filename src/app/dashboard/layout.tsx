@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
+import { ToolsMenu } from "@/components/dashboard/ToolsMenu";
 import { LogoutIcon } from "@/components/dashboard/icons";
 import { getServerTranslation } from "@/lib/i18n/server";
 import { getStaffProfile } from "@/lib/staff";
@@ -60,6 +61,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             </Link>
             <div className="flex items-center gap-3">
               <LanguageToggle />
+              <ToolsMenu />
               <span className="hidden text-sm text-zinc-500 sm:inline">
                 {profile.name} · <span className="capitalize">{profile.role}</span>
               </span>

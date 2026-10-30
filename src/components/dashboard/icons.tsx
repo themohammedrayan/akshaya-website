@@ -115,3 +115,13 @@ export const IdCardIcon = (p: IconProps) => (
     <path d="M5 16c.6-1.4 1.7-2 3-2s2.4.6 3 2M14 10h4M14 13h4" />
   </Svg>
 );
+export const ToolsIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9l-3.8 3.8Z" />
+  </Svg>
+);
+export const ChevronDownIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="m6 9 6 6 6-6" />
+  </Svg>
+);

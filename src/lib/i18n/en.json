@@ -145,8 +145,7 @@
       "logout": "Log out",
       "dayClose": "Day close",
       "analytics": "Analytics",
-      "followups": "Follow-ups",
-      "pvcCards": "PVC cards"
+      "followups": "Follow-ups"
     },
     "newBill": {
       "search": "Search service…",
@@ -313,6 +312,11 @@
       "transfersNote": "Cash → Bank and wallet top-ups only move money between places, so they don't count.",
       "billedInfo": "Bills recorded over these days: {amount} (for info only — not every payment may be billed).",
       "analytics": "Analytics"
+    },
+    "tools": {
+      "label": "Tools",
+      "uidai": "UIDAI form printer",
+      "pvc": "PVC card printer"
     }
   },
   "pvcCards": {

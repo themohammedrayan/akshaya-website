@@ -227,6 +227,9 @@ src/lib/pvc-cards/       layout.ts (mm maths), raster.ts (crop/fit/rotate/mirror
 src/components/dashboard/pvc-cards/   the React side
 ```
 
+Both counter tools - this one and the UIDAI overlay printer - are reachable from the **Tools**
+dropdown in the dashboard header, next to the language switch (`src/components/dashboard/ToolsMenu.tsx`).
+
 ## WhatsApp bot + follow-ups
 
 A Malayalam-only WhatsApp bot (`src/app/api/whatsapp/route.ts`, logic in `src/lib/whatsapp/`)
@@ -271,6 +274,9 @@ rely on.
   and that the photo is embedded once and reused for every copy.
   - This found a real bug: the rotation was silently not applied, because mapping a source
     rectangle back to the original image cannot express a rotation. It now uses a canvas transform.
+- `npm run check:tools` renders the dashboard header's Tools dropdown in headless Chrome, with the
+  app's real stylesheet, and checks that it opens, that both tools are linked, and that clicking
+  away closes it again. Screenshots land in a temp folder.
 - Full data-path (tracking code generation, status trigger, all RPCs, RLS enforcement for
   `anon` including negative cases) was verified directly against the live Supabase project via
   SQL. Two real bugs were found and fixed this way before they'd have hit production:
